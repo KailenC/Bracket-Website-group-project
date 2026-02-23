@@ -1,0 +1,15 @@
+# Node modules for backend
+backend/node_modules
+
+# Node modules for frontend
+frontend/node_modules
+
+# Environment files with secrets
+backend/.env
+frontend/.env
+
+# Logs
+*.log
+
+# Optional: VSCode settings
+.vscode/
