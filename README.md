@@ -6,3 +6,8 @@ We currently plan utalizing a tech stack of React for our frontend, Node + Expre
 As we work on our project backlog, feel free to suggest other languages and/or frameworks that could make tasks easier because Kailen and I have minimal project expierience.
 Also, If you guys are ever working on some feature and feel that it could use a section in our README due to its importance or complexity, do not hesitate to add either a little
 blurb or a ToDo note for later :)
+
+
+!!! for mac you need to run: brew install node
+
+After install, you can run "npm start" in frontend or backend file
