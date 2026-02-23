@@ -11,5 +11,8 @@ frontend/.env
 # Logs
 *.log
 
-# Optional: VSCode settings
+# VSCode settings
 .vscode/
+
+# macOS
+.DS_Store
