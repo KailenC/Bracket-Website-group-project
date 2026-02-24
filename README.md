@@ -8,7 +8,7 @@ Also, If you guys are ever working on some feature and feel that it could use a 
 blurb or a ToDo note for later :)
 
 ## **Mac Instructions**
-!!! for mac you need to run: brew install node in terminal
+!!! for mac you need to run: ``brew install`` node in terminal
 
 After install, you can run "npm start" in frontend or backend file
 
