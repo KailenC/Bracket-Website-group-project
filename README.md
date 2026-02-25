@@ -25,8 +25,8 @@ Find the location of the installed node.js folder and copy the path. The default
 Next, search "Edit the system environment variables" in the Windows Search bar and go to the "Environment Variables" button at the bottom
 
 Under User Variables (The top section of the pop-out), click New and then set  
-- Variable Name: Node.js
-- Variable Value: C:\Program Files\nodejs
+- Variable Name: ``Node.js``
+- Variable Value: ``C:\Program Files\nodejs``
 
 To verify if this worked, run ``node --version`` in your teminal.
 
