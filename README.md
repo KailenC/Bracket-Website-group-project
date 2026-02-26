@@ -62,7 +62,8 @@ To test the frontend, try the following:
 
 I really hope this makes it easier bc I was tweaking setting this up :(
 
-GIT BASICS for reference if you forget or want a referesher and if you use the terminal ( i personally reference a lot cause i have weak memory)
+## **GitHub Basics** 
+for reference if you forget or want a referesher and if you use the terminal ( i personally reference a lot cause i have weak memory)
 
 git branch → check which branch
 
