@@ -65,14 +65,22 @@ I really hope this makes it easier bc I was tweaking setting this up :(
 GIT BASICS for reference if you forget or want a referesher and if you use the terminal ( i personally reference a lot cause i have weak memory)
 
 git branch → check which branch
+
 git checkout main → switch to main branch
+
 git pull origin main --rebase → sync with GitHub
+
 git checkout -b new-feature → create branch (if needed)
 
+
 Make changes locally: (what you use a lot)
+
 git add . → stage changes
+
 git commit -m "message" → commit changes
+
 git push -u origin new-feature → upload to GitHub
+
 
 after you push you should discard the branch or just keep track of what you are pushing to main or else you might come across problem but nothing chat cant solve with stashing...
 
