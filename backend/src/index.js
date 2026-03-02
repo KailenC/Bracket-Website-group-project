@@ -1,0 +1,18 @@
+const express = require("express");
+const cors = require("cors");
+const app = express();
+
+app.use(express.json());
+app.use(cors());
+
+const authRoutes = require("../src/routes/auth.routes");
+const tournamentRoutes = require("../src/routes/tournaments.routes");
+
+// when the app recieves these requests, it sends them to routes
+app.use("/auth", authRoutes);
+app.use("/tournaments", tournamentRoutes);
+
+app.listen(8080, () => {
+  console.log("Server running on port 8080");
+});
+
