@@ -12,6 +12,10 @@ const tournamentRoutes = require("../src/routes/tournaments.routes");
 app.use("/auth", authRoutes);
 app.use("/tournaments", tournamentRoutes);
 
+app.get("/", (req, res) => {
+  res.send("Server is working!");
+});
+
 app.listen(8080, () => {
   console.log("Server running on port 8080");
 });
