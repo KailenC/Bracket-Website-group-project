@@ -61,7 +61,7 @@ To test the frontend, try the following:
 -  http://localhost:3000 should open automatically with the react Logo
 -  Ctrl + C to close this
 
-###**Other notes (Took a ton of time originally debugging):**
+### **Other notes (Took a ton of time originally debugging):**
 - Dont use the psql command in bash, the terminal is not privaleged enough
 - If you setup postgreSQL via the installer on windows, default username is postgres
 - 
@@ -79,11 +79,29 @@ I really hope this makes it easier bc I was tweaking setting this up :(
 ## **PSQL Commands**
 The following are useful commands to use the psql shell to interact with your database
 
-To access the shell, open psql and press enter until the password field is displayed
+To access the temrinal where info will be displayed , open the psql shell and press enter until the password field is displayed
 - Enter your superuser password if on windows
 - Not required on Mac as far as I know
-To create the database we will use, enter:
-- todo
+
+To create and access the database we will use, enter:
+- `CREATE DATABASE usersdb;`
+- `\c usersdb;`
+
+Then paste the following command in:
+- `CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  first_name VARCHAR(50),
+  last_name VARCHAR(50),
+  username VARCHAR(50) UNIQUE,
+  email VARCHAR(100) UNIQUE,
+  password TEXT
+);`
+
+Now the database should be properly setup on your machine. To check if users are being added, run the following
+-  `select * from users;`
+
+This should print all of the contents entered in the database.
+  
 
 ## **GitHub Basics** 
 for reference if you forget or want a referesher and if you use the terminal ( i personally reference a lot cause i have weak memory)
