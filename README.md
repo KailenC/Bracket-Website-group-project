@@ -56,11 +56,34 @@ To verify if this worked try the following:
 
 To test the frontend, try the following:
 - ``cd frontend  ``
+- ``npm install react-router-dom``
 - ``npm start``
 -  http://localhost:3000 should open automatically with the react Logo
 -  Ctrl + C to close this
 
+###**Other notes (Took a ton of time originally debugging):**
+- Dont use the psql command in bash, the terminal is not privaleged enough
+- If you setup postgreSQL via the installer on windows, default username is postgres
+- 
 I really hope this makes it easier bc I was tweaking setting this up :(
+
+## **Helpful Software and Extensions**
+### **Postman**
+- API testing tool that can observe the response to get and post requests (Very useful when backend and frontend are out of date)
+- Can be installed at https://www.postman.com/downloads/
+
+### **VScode Extensions**
+- PostgreSQL by Chris Klokman
+  - Allows visualization of a database without directly using the psql shell
+ 
+## **PSQL Commands**
+The following are useful commands to use the psql shell to interact with your database
+
+To access the shell, open psql and press enter until the password field is displayed
+- Enter your superuser password if on windows
+- Not required on Mac as far as I know
+To create the database we will use, enter:
+- todo
 
 ## **GitHub Basics** 
 for reference if you forget or want a referesher and if you use the terminal ( i personally reference a lot cause i have weak memory)
