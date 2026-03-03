@@ -8,10 +8,10 @@ const createUser = async (userData) => {
        VALUES ($1, $2, $3, $4, $5) RETURNING id, first_name, last_name, username, email, password`,
       [first_name, last_name, username, email, password]
     );
-    
+
     return result.rows[0];
 }
 
 
 
-module.exports = (createUser);
+module.exports = {createUser};
