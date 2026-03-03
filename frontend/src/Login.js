@@ -3,6 +3,7 @@ import { useState } from "react";
 
 function Login(){
   const [username, setUsername] = useState("");
+  const [loginError, setError] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   
@@ -17,6 +18,7 @@ function Login(){
 
     const data = await response.json();
     setMessage(data.message);
+    setError(data.error);
 };
 
 return (
@@ -41,6 +43,7 @@ return (
       <button onClick={handleLogin}>Submit</button>
 
       <p>{message}</p>
+      <p>{loginError}</p>
     </div>
   );
 }
