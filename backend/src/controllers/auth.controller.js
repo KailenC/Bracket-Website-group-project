@@ -17,8 +17,11 @@ const register = async (req, res) => {
     res.json({
         message: "User Account Created Succesfully",
         user: {username, email},
-        hashedPasswordTest: hashedPassword
+        hashedPasswordTest: hashedPassword,
     });
+    // console.log("BODY RECEIVED:", req.body);
+
+
     
 }
 
@@ -26,13 +29,25 @@ const login = async (req, res) => {
     const {username, password} = req.body;
 
     // pull this from database for the username this is just for testing
-    const hashedPassword = "$2b$10$AqHq37EzHNwaDGLKzz9Ciu/mse4oPq1l0KyA7i.u/zHIJox1zOsjO";
+    // const hashedPassword = "$2b$10$AqHq37EzHNwaDGLKzz9Ciu/mse4oPq1l0KyA7i.u/zHIJox1zOsjO";
+    const saltedRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltedRounds);
+    
+    const matchingPass = await bcrypt.compare(password, hashedPassword);
 
-    if(await bcrypt.compare(password, hashedPassword)) {
-        res.status(200).send("succesful login");
+    if(matchingPass) {
+        console.log("Correct Password Entered (Should always hit this)");
+
+    return res.status(200).json({
+            success: true,
+            message: "Login Sucessful (should always hit this for now)"
+        });
     } else {
-        res.status(400).send("invalid credentials");
+        return res.status(400).json({
+            success: false,
+            message: "Invalid credentials (if this happens something rlly bad happened)"
+        });
     }
-}
+};
 
 module.exports = { register, login };
