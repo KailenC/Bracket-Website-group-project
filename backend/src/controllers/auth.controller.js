@@ -1,24 +1,34 @@
+const userModel = require("../models/user.model");
 // if this gives you trouble download bcryptjs 
 const bcrypt = require('bcryptjs');
 
 const register = async (req, res) => {
-    const {username, password, email} = req.body;
+    const { first_name, last_name, username, email, password } = req.body;
 
-    // hash password
+    // hash password (not used yet)
     const saltedRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltedRounds);
-    console.log(hashedPassword);
-    
+    console.log(hashedPassword);       
 
-    // check to make sure email hasnt been used, username is available
-    // call model to create user in database
+  // Basic validation
+  if (!first_name || !last_name || !username || !email || !password) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+  if (typeof password !== 'string' || password.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters' });
+  }
 
-    // just testing that register recieves something
-    res.json({
-        message: "User Account Created Succesfully",
-        user: {username, email},
-        hashedPasswordTest: hashedPassword
-    });
+  try {
+    const newUser = await userModel.createUser(req.body);
+    res.status(201).json({ message: "User registered", user: newUser });
+  } catch (err) {
+    console.error(err.message);
+    // Handle duplicate username/email
+    if (err.code === '23505') { 
+      return res.status(400).json({ error: 'Username or email already exists' });
+    }
+    res.status(500).json({ error: 'Server error' });
+  } 
     
 }
 
