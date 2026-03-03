@@ -14,3 +14,4 @@ To hit login: POST http://(your host)/auth/login with body:
   "username": "joeDoe",
   "password": "mypassword123"
 }
+
