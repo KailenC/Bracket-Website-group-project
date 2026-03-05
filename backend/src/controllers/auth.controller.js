@@ -59,4 +59,17 @@ const login = async (req, res) => {
   res.status(200).json({ message: "Login Successful" });
 };
 
-module.exports = { register, login };
+const getUserProfile = async (req, res) => {
+  const {username} = req.body;
+
+  const user = await userModel.getUserByUsername(username);
+
+  if(!user) {
+    return res.status(400).json({error: "User not found"});
+  }
+
+  // implement user details, etc
+  res.status(200).json({error: "not implemented"});
+}
+
+module.exports = { register, login, getUserProfile };
