@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-require('dotenv').config();
+require("dotenv").config();
 const app = express();
 
 app.use(express.json());
@@ -20,4 +20,3 @@ app.get("/", (req, res) => {
 app.listen(8080, () => {
   console.log("Server running on port 8080");
 });
-
