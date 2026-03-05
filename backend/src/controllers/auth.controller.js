@@ -8,7 +8,7 @@ const register = async (req, res) => {
   // hash password (not used yet)
   const saltedRounds = 10;
   const hashedPassword = await bcrypt.hash(password, saltedRounds);
-  console.log(hashedPassword);
+  //console.log(hashedPassword);
 
   // Basic validation
   if (!first_name || !last_name || !username || !email || !password) {
