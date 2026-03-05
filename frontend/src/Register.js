@@ -1,7 +1,6 @@
 import { useState } from "react";
 
-
-function Register(){
+function Register() {
   const [username, setUsername] = useState("");
   const [first_name, setFirstName] = useState("");
   const [last_name, setLastName] = useState("");
@@ -14,9 +13,15 @@ function Register(){
     const response = await fetch("http://localhost:8080/auth/register", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({username,first_name, last_name, password, email })
+      body: JSON.stringify({
+        username,
+        first_name,
+        last_name,
+        password,
+        email,
+      }),
     });
 
     const data = await response.json();
@@ -33,29 +38,32 @@ function Register(){
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
-      <br /><br />
+      <br />
+      <br />
 
-    <input
+      <input
         placeholder="firstName"
         value={first_name}
         onChange={(e) => setFirstName(e.target.value)}
       />
-      <br /><br />
-      
-    <input
+      <br />
+      <br />
+
+      <input
         placeholder="lastName"
         value={last_name}
         onChange={(e) => setLastName(e.target.value)}
       />
-      <br /><br />
+      <br />
+      <br />
 
       <input
         placeholder="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
-      <br /><br />
-
+      <br />
+      <br />
 
       <input
         type="password"
@@ -63,7 +71,8 @@ function Register(){
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <br /><br />
+      <br />
+      <br />
 
       <button onClick={handleSubmit}>Submit</button>
 
