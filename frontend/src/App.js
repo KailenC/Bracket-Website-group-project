@@ -6,8 +6,7 @@ function App() {
   return (
     <Router>
       <nav style={{ padding: "10px" }}>
-        <Link to="/register">Register</Link> |{" "}
-        <Link to="/login">Login</Link>
+        <Link to="/register">Register</Link> | <Link to="/login">Login</Link>
       </nav>
 
       <Routes>

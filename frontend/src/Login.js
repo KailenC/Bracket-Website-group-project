@@ -1,27 +1,27 @@
 import { useState } from "react";
 // import { login } from "../../backend/src/controllers/auth.controller";
 
-function Login(){
+function Login() {
   const [username, setUsername] = useState("");
   const [loginError, setError] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  
-   const handleLogin = async () => {
+
+  const handleLogin = async () => {
     const response = await fetch("http://localhost:8080/auth/login", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, password })
+      body: JSON.stringify({ username, password }),
     });
 
     const data = await response.json();
     setMessage(data.message);
     setError(data.error);
-};
+  };
 
-return (
+  return (
     <div style={{ padding: "20px" }}>
       <h1>Password Test</h1>
 
@@ -30,7 +30,8 @@ return (
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
-      <br /><br />
+      <br />
+      <br />
 
       <input
         type="password"
@@ -38,7 +39,8 @@ return (
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <br /><br />
+      <br />
+      <br />
 
       <button onClick={handleLogin}>Submit</button>
 
@@ -47,4 +49,4 @@ return (
     </div>
   );
 }
-  export default Login;
+export default Login;
