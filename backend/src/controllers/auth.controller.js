@@ -5,19 +5,22 @@ const bcrypt = require("bcryptjs");
 const register = async (req, res) => {
   const { first_name, last_name, username, email, password } = req.body;
 
-  // hash password (not used yet)
+  // hash password
   const saltedRounds = 10;
   const hashedPassword = await bcrypt.hash(password, saltedRounds);
-  //console.log(hashedPassword);
 
   // Basic validation
   if (!first_name || !last_name || !username || !email || !password) {
+
     return res.status(400).json({ error: "All fields are required" });
+
   }
   if (typeof password !== "string" || password.length < 6) {
+
     return res
       .status(400)
       .json({ error: "Password must be at least 6 characters" });
+
   }
 
   try {

@@ -13,7 +13,19 @@ const getTournament = (req, res) => {
 };
 
 const createTournament = (req, res) => {
-  // tournament params
+  const {tournament_name, host_id, tournament_type, max_players} = req.body;
+
+  try {
+    const newTournament = tournamentModel.createTournament({
+      tournament_name,
+      host_id,
+      tournament_type,
+      max_players
+    });
+    res.status(201).json({ message: "tournament created", tournament: newTournament });
+  } catch(err) {
+    
+  }
   // make new tournament in database
   // update frontend
   // need database method
