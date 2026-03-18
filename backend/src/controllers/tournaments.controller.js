@@ -12,11 +12,11 @@ const getTournament = (req, res) => {
   // send tournament info to frontend
 };
 
-const createTournament = (req, res) => {
+const createTournament = async (req, res) => {
   const {tournament_name, host_id, tournament_type, max_players} = req.body;
 
   try {
-    const newTournament = tournamentModel.createTournament({
+    const newTournament = await tournamentModel.createTournament({
       tournament_name,
       host_id,
       tournament_type,
@@ -24,12 +24,10 @@ const createTournament = (req, res) => {
     });
     res.status(201).json({ message: "tournament created", tournament: newTournament });
   } catch(err) {
-    
-  }
-  // make new tournament in database
-  // update frontend
-  // need database method
-  
+    console.error("Error creating tournament:", err);
+
+    res.status(500).json({message: "Failed to create tournament"});
+  } 
 };
 
 const getPublicTournaments = (req, res) => {
@@ -37,8 +35,20 @@ const getPublicTournaments = (req, res) => {
   // need database method
 };
 
-const joinTournament = (req, res) => {
-  const id = req.params.id;
+const joinTournament = async (req, res) => {
+  const {tournament_id, user_id} = req.body;
+
+  try {
+    await tournamentModel.joinTournament({
+      tournament_id,
+      user_id
+    });
+    res.status(201).json({message: "Joined Succesfully"});
+  } catch(err) {
+    console.error("Error", err);
+
+    res.status(500).json({message: "Failed to Join"});
+  }
   // check to make sure tournament isnt full, and user has permision
   // need database method
   // send back good or bad

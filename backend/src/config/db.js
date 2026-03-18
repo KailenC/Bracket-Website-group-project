@@ -10,10 +10,3 @@ const pool = new Pool({
 });
 
 module.exports = pool;
-
-// IDEA for DB structure
-/*
-CREATE TABLE tournaments (id int PRIMARY KEY, name varchar(100), host_id int, status varchar(100), type varchar(100), max_players int);
-CREATE TABLE tournaments_players(id int PRIMARY KEY, tournament_id int, user_id int);
-CREATE TABLE tournaments_matches(id int PRIMARY KEY, tournament_id int, player1_id int, player2_id int, winner int, round int);
-*/
