@@ -76,6 +76,9 @@ I really hope this makes it easier bc I was tweaking setting this up :(
 - PostgreSQL by Chris Klokman
   - Allows visualization of a database without directly using the psql shell
  
+## **SQL commands
+-https://www.w3schools.com/sql/default.asp
+ 
 ## **PSQL Commands**
 The following are useful commands to use the psql shell to interact with your database
 
