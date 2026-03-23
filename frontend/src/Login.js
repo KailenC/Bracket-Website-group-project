@@ -1,5 +1,4 @@
 import { useState } from "react";
-// import { login } from "../../backend/src/controllers/auth.controller";
 
 function Login() {
   const [username, setUsername] = useState("");
