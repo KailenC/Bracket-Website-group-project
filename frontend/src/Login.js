@@ -8,6 +8,11 @@ function Login() {
   const [message, setMessage] = useState("");
 
   const handleLogin = async () => {
+
+    setMessage("");
+    setError("");
+
+    try{
     const response = await fetch("http://localhost:8080/auth/login", {
       method: "POST",
       headers: {
@@ -15,37 +20,49 @@ function Login() {
       },
       body: JSON.stringify({ username, password }),
     });
+    
+  const data = await response.json();
+    if (!response.ok){
+      setError(data.error || "Login failed. Check your username or password.");
+      return;
+    }
+    else{
+      setError(data.message || "Login successful!");
+    }
 
-    const data = await response.json();
-    setMessage(data.message);
-    setError(data.error);
+  }catch (error) {
+    setError("An error occurred during login. Please try again.");
+    return;
+  }
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Password Test</h1>
+    <div className="center-register">
+      <h1>Login</h1>
 
       <input
         placeholder="Username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
+        className="text-entry"
       />
-      <br />
-      <br />
 
       <input
         type="password"
         placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        className="text-entry"
       />
-      <br />
-      <br />
 
-      <button onClick={handleLogin}>Submit</button>
+      <button onClick={handleLogin} className="btn">
+        Submit
+      </button>
+      <p>Undeveloped Forgot your Password? Coming Soon!!</p>
 
-      <p>{message}</p>
-      <p>{loginError}</p>
+      {message && <p className="success-message">{message}</p>}
+      {loginError && <p className="error-message">{loginError}</p>}
+
     </div>
   );
 }
