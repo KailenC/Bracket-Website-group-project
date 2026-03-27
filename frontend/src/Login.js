@@ -7,32 +7,31 @@ function Login() {
   const [message, setMessage] = useState("");
 
   const handleLogin = async () => {
-
     setMessage("");
     setError("");
 
-    try{
-    const response = await fetch("http://localhost:8080/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    });
-    
-  const data = await response.json();
-    if (!response.ok){
-      setError(data.error || "Login failed. Check your username or password.");
+    try {
+      const response = await fetch("http://localhost:8080/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        setError(
+          data.error || "Login failed. Check your username or password.",
+        );
+        return;
+      } else {
+        setError(data.message || "Login successful!");
+      }
+    } catch (error) {
+      setError("An error occurred during login. Please try again.");
       return;
     }
-    else{
-      setError(data.message || "Login successful!");
-    }
-
-  }catch (error) {
-    setError("An error occurred during login. Please try again.");
-    return;
-  }
   };
 
   return (
@@ -61,7 +60,6 @@ function Login() {
 
       {message && <p className="success-message">{message}</p>}
       {loginError && <p className="error-message">{loginError}</p>}
-
     </div>
   );
 }

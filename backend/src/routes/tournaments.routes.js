@@ -8,6 +8,6 @@ router.post("/handleScores", tournamentController.handleMatchResults);
 router.get("/:id", tournamentController.getTournament);
 router.post("/create", tournamentController.createTournament);
 router.get("", tournamentController.getPublicTournaments);
-router.post("/join", tournamentController.joinTournament)
+router.post("/join", tournamentController.joinTournament);
 
 module.exports = router;

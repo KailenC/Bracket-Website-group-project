@@ -9,12 +9,18 @@ function App() {
     <Router>
       <div className="header">
         <div className="left">
-          <Link to="/" className="btn">Main</Link>
+          <Link to="/" className="btn">
+            Main
+          </Link>
         </div>
 
         <div className="right">
-          <Link to="/register" className="btn">Register</Link>
-          <Link to="/login" className="btn">Login</Link>
+          <Link to="/register" className="btn">
+            Register
+          </Link>
+          <Link to="/login" className="btn">
+            Login
+          </Link>
         </div>
       </div>
 
@@ -24,7 +30,6 @@ function App() {
         <Route path="/login" element={<Login />} />
       </Routes>
     </Router>
-    
   );
 }
 
