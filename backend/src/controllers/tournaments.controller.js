@@ -13,21 +13,23 @@ const getTournament = (req, res) => {
 };
 
 const createTournament = async (req, res) => {
-  const {tournament_name, host_id, tournament_type, max_players} = req.body;
+  const { tournament_name, host_id, tournament_type, max_players } = req.body;
 
   try {
     const newTournament = await tournamentModel.createTournament({
       tournament_name,
       host_id,
       tournament_type,
-      max_players
+      max_players,
     });
-    res.status(201).json({ message: "tournament created", tournament: newTournament });
-  } catch(err) {
+    res
+      .status(201)
+      .json({ message: "tournament created", tournament: newTournament });
+  } catch (err) {
     console.error("Error creating tournament:", err);
 
-    res.status(500).json({message: "Failed to create tournament"});
-  } 
+    res.status(500).json({ message: "Failed to create tournament" });
+  }
 };
 
 const getPublicTournaments = (req, res) => {
@@ -36,18 +38,18 @@ const getPublicTournaments = (req, res) => {
 };
 
 const joinTournament = async (req, res) => {
-  const {tournament_id, user_id} = req.body;
+  const { tournament_id, user_id } = req.body;
 
   try {
     await tournamentModel.joinTournament({
       tournament_id,
-      user_id
+      user_id,
     });
-    res.status(201).json({message: "Joined Succesfully"});
-  } catch(err) {
+    res.status(201).json({ message: "Joined Succesfully" });
+  } catch (err) {
     console.error("Error", err);
 
-    res.status(500).json({message: "Failed to Join"});
+    res.status(500).json({ message: "Failed to Join" });
   }
   // check to make sure tournament isnt full, and user has permision
   // need database method
@@ -55,4 +57,10 @@ const joinTournament = async (req, res) => {
   // update users profile
 };
 
-module.exports = { handleMatchResults, getTournament, createTournament, getPublicTournaments, joinTournament };
+module.exports = {
+  handleMatchResults,
+  getTournament,
+  createTournament,
+  getPublicTournaments,
+  joinTournament,
+};

@@ -11,16 +11,12 @@ const register = async (req, res) => {
 
   // Basic validation
   if (!first_name || !last_name || !username || !email || !password) {
-
     return res.status(400).json({ error: "All fields are required" });
-
   }
   if (typeof password !== "string" || password.length < 6) {
-
     return res
       .status(400)
       .json({ error: "Password must be at least 6 characters" });
-
   }
 
   try {
@@ -63,16 +59,16 @@ const login = async (req, res) => {
 };
 
 const getUserProfile = async (req, res) => {
-  const {username} = req.body;
+  const { username } = req.body;
 
   const user = await userModel.getUserByUsername(username);
 
-  if(!user) {
-    return res.status(400).json({error: "User not found"});
+  if (!user) {
+    return res.status(400).json({ error: "User not found" });
   }
 
   // implement user details, etc
-  res.status(200).json({error: "not implemented"});
-}
+  res.status(200).json({ error: "not implemented" });
+};
 
 module.exports = { register, login, getUserProfile };

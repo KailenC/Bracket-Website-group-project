@@ -10,43 +10,40 @@ function Register() {
   const [message, setMessage] = useState("");
   const [loginError, setError] = useState("");
 
-  
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
-
     setMessage("");
     setError("");
 
-    try{
-    const response = await fetch("http://localhost:8080/auth/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username,
-        first_name,
-        last_name,
-        password,
-        email,
-      }),
-    });
+    try {
+      const response = await fetch("http://localhost:8080/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          first_name,
+          last_name,
+          password,
+          email,
+        }),
+      });
 
-    const data = await response.json();
-      if(!response.ok){
+      const data = await response.json();
+      if (!response.ok) {
         setError(data.error || "Registration failed. Please try again."); // the failure part works idk if the success part works I need the database to test that
         return;
+      } else if (response.ok) {
+        setMessage(
+          data.message || "Registration successful! You can now log in.",
+        );
       }
-      else if(response.ok){
-        setMessage(data.message || "Registration successful! You can now log in.");
-      }
-    }catch (error) {
+    } catch (error) {
       setError("An error occurred during registration. Please try again.");
       return;
     }
-
-
   };
 
   return (
@@ -89,7 +86,9 @@ function Register() {
         className="text-entry"
       />
 
-      <button onClick={handleSubmit} className="btn">Submit</button>
+      <button onClick={handleSubmit} className="btn">
+        Submit
+      </button>
 
       {message && (
         <div>
@@ -98,11 +97,9 @@ function Register() {
             Go to Login
           </button>
         </div>
-      )} 
+      )}
 
-      
       {loginError && <p className="error-message">{loginError}</p>}
-      
     </div>
   );
 }
