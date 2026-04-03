@@ -1,10 +1,13 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [username, setUsername] = useState("");
   const [loginError, setError] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
 
@@ -25,10 +28,8 @@ function Login() {
       setError(data.error || "Login failed. Check your username or password.");
       return;
     }
-    else{
-      setError(data.message || "Login successful!");
-    }
-
+    localStorage.setItem("token", data.token); // Store the token for future authenticated requests
+    navigate("/dashboard"); // Redirect to the dashboard after successful login
   }catch (error) {
     setError("An error occurred during login. Please try again.");
     return;
