@@ -11,7 +11,9 @@ function App() {
     <Router>
       <div className="header">
         <div className="left">
-          <Link to="/" className="btn">Main</Link>
+          <Link to="/" className="btn">
+            Main
+          </Link>
         </div>
 
         <div className="right">
