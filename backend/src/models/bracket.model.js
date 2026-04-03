@@ -1,22 +1,53 @@
-const pool = require("../config/db");
-
-const getMatch = async ({ tournament, game, player1, player2 }) => {
-  const result = await db.query(
+const getMatch = async ({ tournamentId, round, player1Id, player2Id }) => {
+  const result = await pool.query(
     `SELECT * FROM matches 
-     WHERE tournament = $1 AND game = $2 
-     AND player1 = $3 AND player2 = $4`,
-    [tournament, game, player1, player2]
+     WHERE tournament_id = $1 AND round = $2 
+     AND player1_id = $3 AND player2_id = $4`,
+    [tournamentId, round, player1Id, player2Id]
   );
   return result.rows[0];
 };
 
-const updateMatch = async ({ tournament, game, player1, player2, wins1, wins2, seriesWinner, complete }) => {
-  const result = await db.query(
-    `UPDATE matches 
-     SET wins1 = $1, wins2 = $2, series_winner = $3, complete = $4
-     WHERE tournament = $5 AND game = $6 AND player1 = $7 AND player2 = $8
-     RETURNING *`,
-    [wins1, wins2, seriesWinner, complete, tournament, game, player1, player2]
+const getMatchById = async (matchId) => {
+  const result = await pool.query(
+    `SELECT * FROM matches WHERE id = $1`,
+    [matchId]
   );
   return result.rows[0];
 };
+
+const updateMatch = async ({ tournamentId, round, player1Id, player2Id, score1, score2, winnerId, status }) => {
+  const result = await pool.query(
+    `UPDATE matches 
+     SET score1 = $1, score2 = $2, winner_id = $3, status = $4
+     WHERE tournament_id = $5 AND round = $6 AND player1_id = $7 AND player2_id = $8
+     RETURNING *`,
+    [score1, score2, winnerId, status, tournamentId, round, player1Id, player2Id]
+  );
+  return result.rows[0];
+};
+
+// Finds the next round match slot the winner should go into
+const getNextMatch = async ({ tournamentId, currentRound, matchNumber }) => {
+  const nextRound = currentRound + 1;
+  const nextMatchNumber = Math.ceil(matchNumber / 2);
+
+  const result = await pool.query(
+    `SELECT * FROM matches 
+     WHERE tournament_id = $1 AND round = $2 AND match_number = $3`,
+    [tournamentId, nextRound, nextMatchNumber]
+  );
+  return result.rows[0];
+};
+
+// Slots the winner into player1 or player2 of the next match
+const assignPlayerToMatch = async ({ matchId, playerId, slot }) => {
+  const column = slot === 1 ? "player1_id" : "player2_id";
+  const result = await pool.query(
+    `UPDATE matches SET ${column} = $1 WHERE id = $2 RETURNING *`,
+    [playerId, matchId]
+  );
+  return result.rows[0];
+};
+
+module.exports = { getMatch, getMatchById, updateMatch, getNextMatch, assignPlayerToMatch };

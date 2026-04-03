@@ -4,7 +4,7 @@ const handleMatchResults = (req, res) => {
   const { tournament, game, player1, player2 } = req.body;
 
   res.json({ tournament, game, player1, player2 });
-};
+}; //not sure what this does 
 
 const getTournament = (req, res) => {
   const id = req.params.id;

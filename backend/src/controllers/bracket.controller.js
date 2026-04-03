@@ -1,48 +1,86 @@
-const bracketModel = require ("../backend/src/models/bracket.model");
+const bracketModel = require("../backend/src/models/bracket.model");
 
 const enterResultsIndividual = async (req, res) => {
-    const {tournament, game, player1, player2, score1, score2} = req.body;
-    //return a winner, bracket type does not matter
-    //somehow check if user is auth?
-    const match = await bracketModel.getMatch({ tournament, game, player1, player2 })
-    const currWins1 = match.wins1 + (score1 > score2 ? 1 : 0);
-    const currWins2 = match.wins2 + (score2 > score1 ? 1 : 0);
+  const { tournamentId, round, player1Id, player2Id, score1, score2 } = req.body;
 
-    const setWinner = currWins1 === 3 ? player1
-                    : currWins2 === 3 ? player2
-                    : null;
-const updatedMatch = await bracketModel.updateMatch({
-    tournament,
-    game,
-    player1,
-    player2,
-    wins1: currWins1,
-    wins2: currWins2,
-    setWinner,
-    complete: setWinner !== null
-});
+  const match = await bracketModel.getMatch({ tournamentId, round, player1Id, player2Id });
 
-res.json(updatedMatch); //Somehow will check if setWiner is complete to advance to the next step
+  const currScore1 = match.score1 + (score1 > score2 ? 1 : 0);
+  const currScore2 = match.score2 + (score2 > score1 ? 1 : 0);
+
+  const winnerId = currScore1 === 3 ? player1Id
+                 : currScore2 === 3 ? player2Id
+                 : null;
+
+  const updatedMatch = await bracketModel.updateMatch({
+    tournamentId,
+    round,
+    player1Id,
+    player2Id,
+    score1: currScore1,
+    score2: currScore2,
+    winnerId,
+    status: winnerId !== null ? "complete" : "in_progress"
+  });
+
+  // Only advance if this game sealed the match
+  if (winnerId !== null) {
+    await advanceWinner({ tournamentId, completedMatch: updatedMatch });
+  }
+
+  res.json(updatedMatch);
 };
-//entrantReportingHere
-//create some function that deals with non-exact ammounts of entrants
-//also handle cap-entrants needs to be addressed -> 17 entrants could either be a round of 32 with 1 match or some other workaround
 
 const enterResultsSeries = async (req, res) => {
-    const {tournament, game, player1, player2, finalScore1, finalScore2} = req.body;
-    const winner = finalScore1 > finalScore2 ? player1: player2;
-    const updatedMatch = await bracketModel.updateMatch({
-    tournament,
-    game,
-    player1,
-    player2,
-    wins1: finalScore1,
-    wins2: finalScore2,
-    winner,
-    complete: true
-});
-    res.json({tournament, game, player1, player2})
+  const { tournamentId, round, player1Id, player2Id, score1, score2 } = req.body;
 
-}
+  const winnerId = score1 > score2 ? player1Id : player2Id;
 
-//needs to be fixed with how our actual matches db is configured
+  const updatedMatch = await bracketModel.updateMatch({
+    tournamentId,
+    round,
+    player1Id,
+    player2Id,
+    score1,
+    score2,
+    winnerId,
+    status: "complete"
+  });
+
+  await advanceWinner({ tournamentId, completedMatch: updatedMatch });
+
+  res.json(updatedMatch);
+};
+
+const advanceWinner = async ({ tournamentId, completedMatch }) => {
+  const { winner_id, round, match_number } = completedMatch;
+
+  const nextMatch = await bracketModel.getNextMatch({
+    tournamentId,
+    currentRound: round,
+    matchNumber: match_number
+  });
+
+  // No next match means this was the final — tournament is over
+  if (!nextMatch) {
+    await pool.query(
+      `UPDATE tournaments SET status = 'complete' WHERE id = $1`,
+      [tournamentId]
+    );
+    return null;
+  }
+
+  // Odd match number → player1 slot, even → player2 slot
+  const slot = match_number % 2 !== 0 ? 1 : 2;
+
+  const advanced = await bracketModel.assignPlayerToMatch({
+    matchId: nextMatch.id,
+    playerId: winner_id,
+    slot
+  });
+
+  return advanced;
+};
+
+
+module.exports = { enterResultsIndividual, enterResultsSeries };
