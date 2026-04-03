@@ -57,10 +57,36 @@ const joinTournament = async (req, res) => {
   // update users profile
 };
 
+const startTournament = async (req, res) => {
+  const { tournamentId } = req.body;
+
+  const players = await tournamentModel.getSeededPlayers(tournamentId);
+  if (players.length < 2) {
+    return res.status(400).json({ error: "Need at least 2 seeded players to start" });
+  }
+  if (players.some(p => p.seed === null)) {
+    return res.status(400).json({ error: "All players must have a seed before starting" });
+  }
+
+  await tournamentModel.createBracket(tournamentId);
+
+  await pool.query(
+    `UPDATE tournaments SET status = 'in_progress' WHERE id = $1`,
+    [tournamentId]
+  );
+
+  res.json({ message: "Bracket created, tournament started" });
+};
+
 module.exports = {
   handleMatchResults,
   getTournament,
   createTournament,
   getPublicTournaments,
   joinTournament,
+  startTournament
 };
+
+//need to add a set seed method for frontend
+//make sure backend checks if all seeds are set before tournamet is started
+

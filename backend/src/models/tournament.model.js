@@ -1,9 +1,10 @@
 const pool = require("../config/db");
 
-const getTournament = async (tourament_id) => {
+const getTournament = async (tournament_id) => {
   const result = await pool.query(
-    `SELECT * FROM tournaments WHERE id = $1`[tourament_id],
+    `SELECT * FROM tournaments WHERE id = $1`, [tournament_id] 
   );
+  return result.rows[0]; 
 };
 
 const updateTournament = async (tournamentData) => {};
@@ -35,10 +36,109 @@ const joinTournament = async (tournamentData) => {
 
   return result.rows[0];
 };
+const getSeededPlayers = async (tournamentId) => {
+  const result = await pool.query(
+    `SELECT user_id, seed FROM tournament_players
+     WHERE tournament_id = $1
+     ORDER BY seed ASC`,
+    [tournamentId]
+  );
+  return result.rows;
+};
+
+const createBracket = async (tournamentId) => { //creates bracket in DB manually and upfront once all players are entered and seeded
+  const players = await getSeededPlayers(tournamentId);
+  const playerCount = players.length;
+
+  const bracketSize = Math.pow(2, Math.ceil(Math.log2(playerCount))); //I can explain this but its basically rounding up to always be <= 2^(number of rounds), think of how many starter slots are open
+  const totalRounds = Math.log2(bracketSize); //clean number of rounds
+
+  //empty slots are null if not filled with players
+  const slots = [...players.map(p => p.user_id)];
+  while (slots.length < bracketSize) slots.push(null);
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    const round1Matches = [];
+    for (let i = 0; i < bracketSize / 2; i++) {
+      const player1Id = slots[i];                        // e.g. seed 1, 2, 3, 4
+      const player2Id = slots[bracketSize - 1 - i];      // e.g. seed 8, 7, 6, 5
+      const matchNumber = i + 1;
+
+      const result = await client.query(
+        `INSERT INTO matches 
+           (tournament_id, round, match_number, player1_id, player2_id, status)
+         VALUES ($1, 1, $2, $3, $4, $5)
+         RETURNING *`,
+        [
+          tournamentId,
+          matchNumber,
+          player1Id,
+          player2Id,
+          player1Id && player2Id ? "pending"       // normal match
+            : player1Id ? "bye"                    // player1 gets a bye
+            : "bye"                                // empty slot
+        ]
+      );
+      round1Matches.push(result.rows[0]);
+    }
+
+    // --- ROUND 2+: empty shells for every subsequent round ---
+    for (let round = 2; round <= totalRounds; round++) {
+      const matchesInRound = bracketSize / Math.pow(2, round);
+      for (let matchNumber = 1; matchNumber <= matchesInRound; matchNumber++) {
+        await client.query(
+          `INSERT INTO matches 
+             (tournament_id, round, match_number, player1_id, player2_id, status)
+           VALUES ($1, $2, $3, NULL, NULL, 'waiting')`,
+          [tournamentId, round, matchNumber]
+        );
+      }
+    }
+
+    // Auto-advance any bye matches in round 1
+    for (const match of round1Matches) {
+      if (match.status === "bye") {
+        const winnerId = match.player1_id;
+        await client.query(
+          `UPDATE matches SET winner_id = $1, status = 'complete' WHERE id = $2`,
+          [winnerId, match.id]
+        );
+        await advanceBye({ client, tournamentId, completedMatch: { ...match, winner_id: winnerId } });
+      }
+    }
+
+    await client.query("COMMIT");
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
+// Only used during bracket creation to auto-advance bye slots into round 2
+const advanceBye = async ({ client, tournamentId, completedMatch }) => {
+  const { winner_id, match_number } = completedMatch;
+  const nextMatchNumber = Math.ceil(match_number / 2);
+  const slot = match_number % 2 !== 0 ? 1 : 2;
+  const column = slot === 1 ? "player1_id" : "player2_id";
+
+  await client.query(
+    `UPDATE matches SET ${column} = $1
+     WHERE tournament_id = $2 AND round = 2 AND match_number = $3`,
+    [winner_id, tournamentId, nextMatchNumber]
+  );
+};
+
 
 module.exports = {
   getTournament,
   updateTournament,
   createTournament,
   joinTournament,
+  createBracket,
+  getSeededPlayers
 };
