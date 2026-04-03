@@ -89,4 +89,4 @@ module.exports = {
 
 //need to add a set seed method for frontend
 //make sure backend checks if all seeds are set before tournamet is started
-
+//check on all other functions
