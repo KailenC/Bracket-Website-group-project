@@ -78,13 +78,58 @@ const startTournament = async (req, res) => {
   res.json({ message: "Bracket created, tournament started" });
 };
 
+
+const setSeed = async (req, res) => {
+  const { tournament_id, user_id, seed } = req.body;
+
+  const tournament = await tournamentModel.getTournament(tournament_id);
+  if (!tournament) {
+    return res.status(404).json({ error: "Tournament not found" });
+  }
+  if (tournament.status !== "open") {
+    return res.status(400).json({ error: "Cannot change seeds after tournament has started" });
+  }
+
+  try {
+    const updated = await tournamentModel.setSeed({
+      tournamentId: tournament_id,
+      userId: user_id,
+      seed,
+    });
+    if (!updated) {
+      return res.status(404).json({ error: "Player not found in this tournament" });
+    }
+    res.json(updated);
+  } catch (err) {
+    // Catches the duplicate seed error thrown in the model
+    res.status(400).json({ error: err.message });
+  }
+};
+
+const fillSeeds = async (req, res) => { 
+  const {tournament_id} = req.body;
+  const tournament = await tournamentModel.getTournament(tournament_id);
+  if (!tournament) {
+    return res.status(404).json({ error: "Tournament not found" });
+  }
+  if (tournament.status !== "open") {
+    return res.status(400).json({ error: "Cannot change seeds after tournament has started" });
+  }
+    const result = await tournamentModel.fillRemainingSeeds(tournament_id);
+    res.json(result);
+    //maybe need error handeling?
+
+};
+
 module.exports = {
   handleMatchResults,
   getTournament,
   createTournament,
   getPublicTournaments,
   joinTournament,
-  startTournament
+  startTournament,
+  setSeed,
+  fillSeeds
 };
 
 //need to add a set seed method for frontend

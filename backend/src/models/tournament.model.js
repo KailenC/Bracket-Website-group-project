@@ -133,6 +133,69 @@ const advanceBye = async ({ client, tournamentId, completedMatch }) => {
   );
 };
 
+const setSeed = async ({ tournamentId, userId, seed }) => {
+  // Check if seed is already taken by another player
+  const taken = await pool.query(
+    `SELECT user_id FROM tournament_players
+     WHERE tournament_id = $1 AND seed = $2 AND user_id != $3`,
+    [tournamentId, seed, userId]
+  );
+  if (taken.rows.length > 0) {
+    throw new Error(`Seed ${seed} is already assigned to another player`);
+  }
+
+  const result = await pool.query(
+    `UPDATE tournament_players SET seed = $1
+     WHERE tournament_id = $2 AND user_id = $3
+     RETURNING *`,
+    [seed, tournamentId, userId]
+  );
+  return result.rows[0];
+};
+
+const fillRemainingSeeds = async (tournamentId) => {
+  const players = await pool.query(
+    `SELECT user_id, seed FROM tournament_players
+     WHERE tournament_id = $1
+     ORDER BY id ASC`,  // id ASC preserves join order for fairness
+    [tournamentId]
+  );
+
+  const unseeded = players.rows.filter(p => p.seed === null);
+  if (unseeded.length === 0) return { message: "All players already seeded" };
+
+  const takenSeeds = players.rows
+    .filter(p => p.seed !== null)
+    .map(p => p.seed);
+
+  // Walk up from 1 and collect the next available numbers
+  const availableSeeds = [];
+  let next = 1;
+  while (availableSeeds.length < unseeded.length) {
+    if (!takenSeeds.includes(next)) availableSeeds.push(next);
+    next++;
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    for (let i = 0; i < unseeded.length; i++) {
+      await client.query(
+        `UPDATE tournament_players SET seed = $1
+         WHERE tournament_id = $2 AND user_id = $3`,
+        [availableSeeds[i], tournamentId, unseeded[i].user_id]
+      );
+    }
+    await client.query("COMMIT");
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+
+  return { message: `${unseeded.length} players assigned sequential seeds` };
+};
 
 module.exports = {
   getTournament,
@@ -140,5 +203,7 @@ module.exports = {
   createTournament,
   joinTournament,
   createBracket,
-  getSeededPlayers
+  getSeededPlayers,
+  setSeed,
+  fillRemainingSeeds
 };
