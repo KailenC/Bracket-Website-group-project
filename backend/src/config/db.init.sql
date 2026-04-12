@@ -40,7 +40,7 @@ CREATE TABLE matches (
   score1 INT,
   score2 INT, 
   winner_id INT REFERENCES users(id), 
-  round INT, --maybe make these not null in the future idrk
+  round INT,
   match_number INT,
   status VARCHAR(50)
 );
