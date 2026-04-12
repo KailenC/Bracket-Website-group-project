@@ -32,11 +32,6 @@ const createTournament = async (req, res) => {
   }
 };
 
-const getPublicTournaments = (req, res) => {
-  // send all public tournaments to frontend
-  // need database method
-};
-
 const joinTournament = async (req, res) => {
   const { tournament_id, user_id } = req.body;
 
@@ -118,7 +113,25 @@ const fillSeeds = async (req, res) => {
     const result = await tournamentModel.fillRemainingSeeds(tournament_id);
     res.json(result);
     //maybe need error handeling?
+};
 
+const getPublicTournaments = async (req, res) => {
+  const tournaments = await tournamentModel.getPublicTournaments();
+  res.json(tournaments);
+};
+
+const getBrackets = async (req, res) => {
+  const { id } = req.body;
+  const tournament = await tournamentModel.getTournament(id);
+  if (!tournament) {
+    return res.status(404).json({ error: "Tournament not found" });
+  }
+  if (tournament.status === "open") {
+    return res.status(400).json({ error: "Bracket not generated yet" });
+  }
+
+  const bracket = await tournamentModel.getBracket(id);
+  res.json(bracket);
 };
 
 module.exports = {
@@ -129,7 +142,8 @@ module.exports = {
   joinTournament,
   startTournament,
   setSeed,
-  fillSeeds
+  fillSeeds,
+  getBrackets
 };
 
 //need to add a set seed method for frontend
