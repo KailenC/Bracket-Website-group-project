@@ -12,5 +12,7 @@ router.post("/join", tournamentController.joinTournament);
 router.post("/setSeed",tournamentController.setSeed);
 router.post("/fillSeeds", tournamentController.fillSeeds); //should always be called before a tournament is started
 router.post("/startTournament",tournamentController.startTournament);
+router.get("/getBracket", tournamentController.getBrackets);
+
 
 module.exports = router;

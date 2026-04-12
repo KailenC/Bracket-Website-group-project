@@ -197,6 +197,38 @@ const fillRemainingSeeds = async (tournamentId) => {
   return { message: `${unseeded.length} players assigned sequential seeds` };
 };
 
+const getPublicTournaments = async () => {
+  const result = await pool.query(
+    `SELECT t.id, t.name, t.status, t.type, t.max_players, t.created_at,
+            COUNT(tp.user_id) AS current_players
+     FROM tournaments t
+     LEFT JOIN tournament_players tp ON t.id = tp.tournament_id
+     WHERE t.status = 'open'
+     GROUP BY t.id
+     ORDER BY t.created_at DESC`
+  );
+  return result.rows;
+};
+
+const getBracket = async (tournamentId) => {
+  const result = await pool.query(
+    `SELECT 
+       m.id, m.round, m.match_number, m.status,
+       m.score1, m.score2,
+       m.player1_id, p1.username AS player1_username,
+       m.player2_id, p2.username AS player2_username,
+       m.winner_id, w.username AS winner_username
+     FROM matches m
+     LEFT JOIN users p1 ON m.player1_id = p1.id
+     LEFT JOIN users p2 ON m.player2_id = p2.id
+     LEFT JOIN users w  ON m.winner_id  = w.id
+     WHERE m.tournament_id = $1
+     ORDER BY m.round ASC, m.match_number ASC`,
+    [tournamentId]
+  );
+  return result.rows;
+};
+
 module.exports = {
   getTournament,
   updateTournament,
@@ -205,5 +237,7 @@ module.exports = {
   createBracket,
   getSeededPlayers,
   setSeed,
-  fillRemainingSeeds
+  fillRemainingSeeds,
+  getBracket,
+  getPublicTournaments
 };
