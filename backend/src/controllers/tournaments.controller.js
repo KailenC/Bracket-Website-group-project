@@ -1,20 +1,25 @@
 const tournamentModel = require("../models/tournament.model");
 const pool = require("../config/db");
 
-const handleMatchResults = (req, res) => {
-  const { tournament, game, player1, player2 } = req.body;
+const getTournament = async (req, res) => {
+  const { id } = req.params;
 
-  res.json({ tournament, game, player1, player2 });
-}; //not sure what this does
+  try {
+    const tournament = await tournamentModel.getTournament(id);
 
-const getTournament = (req, res) => {
-  const id = req.params.id;
-  // need to hit database for details
-  // send tournament info to frontend
+    if (!tournament) {
+      return res.status(404).json({ message: "Tournament not found" });
+    }
+
+    res.json(tournament);
+  } catch (err) {
+    res.status(500).json({ message: "Server Error" });
+  }
 };
 
 const createTournament = async (req, res) => {
-  const { tournament_name, host_id, tournament_type, max_players } = req.body;
+  const { tournament_name, tournament_type, max_players } = req.body;
+  const host_id = req.user.id;
 
   try {
     const newTournament = await tournamentModel.createTournament({
@@ -34,7 +39,8 @@ const createTournament = async (req, res) => {
 };
 
 const joinTournament = async (req, res) => {
-  const { tournament_id, user_id } = req.body;
+  const { tournament_id } = req.body;
+  const user_id = req.user.id;
 
   try {
     await tournamentModel.joinTournament({
@@ -56,8 +62,14 @@ const joinTournament = async (req, res) => {
 const startTournament = async (req, res) => {
   const { tournament_id } = req.body;
 
+  const tournament = tournamentModel.getTournament(tournament_id);
+  if (tournament.host_id !== re1.user.id) {
+    return res
+      .status(403)
+      .json({ error: "Only the host can start tournament" });
+  }
+
   const players = await tournamentModel.getSeededPlayers(tournament_id);
-  //console.log(players);
   if (players.length < 2) {
     return res
       .status(400)
@@ -80,7 +92,8 @@ const startTournament = async (req, res) => {
 };
 
 const setSeed = async (req, res) => {
-  const { tournament_id, user_id, seed } = req.body;
+  const { tournament_id, seed } = req.body;
+  const user_id = req.user.id;
 
   const tournament = await tournamentModel.getTournament(tournament_id);
   if (!tournament) {
@@ -146,7 +159,6 @@ const getBrackets = async (req, res) => {
 };
 
 module.exports = {
-  handleMatchResults,
   getTournament,
   createTournament,
   getPublicTournaments,
