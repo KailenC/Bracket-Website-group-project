@@ -1,10 +1,10 @@
 const pool = require("../config/db");
 
 const getTournament = async (tournament_id) => {
-  const result = await pool.query(
-    `SELECT * FROM tournaments WHERE id = $1`, [tournament_id] 
-  );
-  return result.rows[0]; 
+  const result = await pool.query(`SELECT * FROM tournaments WHERE id = $1`, [
+    tournament_id,
+  ]);
+  return result.rows[0];
 };
 
 const updateTournament = async (tournamentData) => {};
@@ -36,25 +36,31 @@ const joinTournament = async (tournamentData) => {
 
   return result.rows[0];
 };
-const getSeededPlayers = async (tournamentId) => {
+
+const getSeededPlayers = async (tournament_id) => {
+  //console.log("tournament_id: ", tournament_id);
+
   const result = await pool.query(
     `SELECT user_id, seed FROM tournament_players
      WHERE tournament_id = $1
      ORDER BY seed ASC`,
-    [tournamentId]
+    [tournament_id],
   );
+
+  //console.log("DB result: ", result.rows);
   return result.rows;
 };
 
-const createBracket = async (tournamentId) => { //creates bracket in DB manually and upfront once all players are entered and seeded
-  const players = await getSeededPlayers(tournamentId);
+const createBracket = async (tournament_id) => {
+  //creates bracket in DB manually and upfront once all players are entered and seeded
+  const players = await getSeededPlayers(tournament_id);
   const playerCount = players.length;
 
   const bracketSize = Math.pow(2, Math.ceil(Math.log2(playerCount))); //I can explain this but its basically rounding up to always be <= 2^(number of rounds), think of how many starter slots are open
   const totalRounds = Math.log2(bracketSize); //clean number of rounds
 
   //empty slots are null if not filled with players
-  const slots = [...players.map(p => p.user_id)];
+  const slots = [...players.map((p) => p.user_id)];
   while (slots.length < bracketSize) slots.push(null);
 
   const client = await pool.connect();
@@ -63,8 +69,8 @@ const createBracket = async (tournamentId) => { //creates bracket in DB manually
 
     const round1Matches = [];
     for (let i = 0; i < bracketSize / 2; i++) {
-      const player1Id = slots[i];                        // e.g. seed 1, 2, 3, 4
-      const player2Id = slots[bracketSize - 1 - i];      // e.g. seed 8, 7, 6, 5
+      const player1Id = slots[i]; // e.g. seed 1, 2, 3, 4
+      const player2Id = slots[bracketSize - 1 - i]; // e.g. seed 8, 7, 6, 5
       const matchNumber = i + 1;
 
       const result = await client.query(
@@ -73,14 +79,16 @@ const createBracket = async (tournamentId) => { //creates bracket in DB manually
          VALUES ($1, 1, $2, $3, $4, $5)
          RETURNING *`,
         [
-          tournamentId,
+          tournament_id,
           matchNumber,
           player1Id,
           player2Id,
-          player1Id && player2Id ? "pending"       // normal match
-            : player1Id ? "bye"                    // player1 gets a bye
-            : "bye"                                // empty slot
-        ]
+          player1Id && player2Id
+            ? "pending" // normal match
+            : player1Id
+              ? "bye" // player1 gets a bye
+              : "bye", // empty slot
+        ],
       );
       round1Matches.push(result.rows[0]);
     }
@@ -93,7 +101,7 @@ const createBracket = async (tournamentId) => { //creates bracket in DB manually
           `INSERT INTO matches 
              (tournament_id, round, match_number, player1_id, player2_id, status)
            VALUES ($1, $2, $3, NULL, NULL, 'waiting')`,
-          [tournamentId, round, matchNumber]
+          [tournament_id, round, matchNumber],
         );
       }
     }
@@ -104,9 +112,13 @@ const createBracket = async (tournamentId) => { //creates bracket in DB manually
         const winnerId = match.player1_id;
         await client.query(
           `UPDATE matches SET winner_id = $1, status = 'complete' WHERE id = $2`,
-          [winnerId, match.id]
+          [winnerId, match.id],
         );
-        await advanceBye({ client, tournamentId, completedMatch: { ...match, winner_id: winnerId } });
+        await advanceBye({
+          client,
+          tournament_id,
+          completedMatch: { ...match, winner_id: winnerId },
+        });
       }
     }
 
@@ -120,7 +132,7 @@ const createBracket = async (tournamentId) => { //creates bracket in DB manually
 };
 
 // Only used during bracket creation to auto-advance bye slots into round 2
-const advanceBye = async ({ client, tournamentId, completedMatch }) => {
+const advanceBye = async ({ client, tournament_id, completedMatch }) => {
   const { winner_id, match_number } = completedMatch;
   const nextMatchNumber = Math.ceil(match_number / 2);
   const slot = match_number % 2 !== 0 ? 1 : 2;
@@ -129,16 +141,16 @@ const advanceBye = async ({ client, tournamentId, completedMatch }) => {
   await client.query(
     `UPDATE matches SET ${column} = $1
      WHERE tournament_id = $2 AND round = 2 AND match_number = $3`,
-    [winner_id, tournamentId, nextMatchNumber]
+    [winner_id, tournament_id, nextMatchNumber],
   );
 };
 
-const setSeed = async ({ tournamentId, userId, seed }) => {
+const setSeed = async ({ tournament_id, userId, seed }) => {
   // Check if seed is already taken by another player
   const taken = await pool.query(
     `SELECT user_id FROM tournament_players
      WHERE tournament_id = $1 AND seed = $2 AND user_id != $3`,
-    [tournamentId, seed, userId]
+    [tournament_id, seed, userId],
   );
   if (taken.rows.length > 0) {
     throw new Error(`Seed ${seed} is already assigned to another player`);
@@ -148,25 +160,25 @@ const setSeed = async ({ tournamentId, userId, seed }) => {
     `UPDATE tournament_players SET seed = $1
      WHERE tournament_id = $2 AND user_id = $3
      RETURNING *`,
-    [seed, tournamentId, userId]
+    [seed, tournament_id, userId],
   );
   return result.rows[0];
 };
 
-const fillRemainingSeeds = async (tournamentId) => {
+const fillRemainingSeeds = async (tournament_id) => {
   const players = await pool.query(
     `SELECT user_id, seed FROM tournament_players
      WHERE tournament_id = $1
-     ORDER BY id ASC`,  // id ASC preserves join order for fairness
-    [tournamentId]
+     ORDER BY id ASC`, // id ASC preserves join order for fairness
+    [tournament_id],
   );
 
-  const unseeded = players.rows.filter(p => p.seed === null);
+  const unseeded = players.rows.filter((p) => p.seed === null);
   if (unseeded.length === 0) return { message: "All players already seeded" };
 
   const takenSeeds = players.rows
-    .filter(p => p.seed !== null)
-    .map(p => p.seed);
+    .filter((p) => p.seed !== null)
+    .map((p) => p.seed);
 
   // Walk up from 1 and collect the next available numbers
   const availableSeeds = [];
@@ -183,7 +195,7 @@ const fillRemainingSeeds = async (tournamentId) => {
       await client.query(
         `UPDATE tournament_players SET seed = $1
          WHERE tournament_id = $2 AND user_id = $3`,
-        [availableSeeds[i], tournamentId, unseeded[i].user_id]
+        [availableSeeds[i], tournament_id, unseeded[i].user_id],
       );
     }
     await client.query("COMMIT");
@@ -205,12 +217,12 @@ const getPublicTournaments = async () => {
      LEFT JOIN tournament_players tp ON t.id = tp.tournament_id
      WHERE t.status = 'open'
      GROUP BY t.id
-     ORDER BY t.created_at DESC`
+     ORDER BY t.created_at DESC`,
   );
   return result.rows;
 };
 
-const getBracket = async (tournamentId) => {
+const getBracket = async (tournament_id) => {
   const result = await pool.query(
     `SELECT 
        m.id, m.round, m.match_number, m.status,
@@ -224,7 +236,7 @@ const getBracket = async (tournamentId) => {
      LEFT JOIN users w  ON m.winner_id  = w.id
      WHERE m.tournament_id = $1
      ORDER BY m.round ASC, m.match_number ASC`,
-    [tournamentId]
+    [tournament_id],
   );
   return result.rows;
 };
@@ -239,5 +251,5 @@ module.exports = {
   setSeed,
   fillRemainingSeeds,
   getBracket,
-  getPublicTournaments
+  getPublicTournaments,
 };

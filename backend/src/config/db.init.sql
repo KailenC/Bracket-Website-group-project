@@ -46,3 +46,19 @@ CREATE TABLE matches (
 );
 
 -- SEED DATA 
+
+-- password "password123" hashed
+INSERT INTO users (first_name, last_name, username, email, password) VALUES
+('Kailen', 'C', 'kailen', 'kailen@example.com', '$2a$10$7QJ8zQZlZkz1QW5ZQJz7UeQxQ5z9Jrj0YFQyZp6G5rKQ8kzXkzXkG'),
+('Alice', 'Smith', 'alice', 'alice@example.com', '$2a$10$7QJ8zQZlZkz1QW5ZQJz7UeQxQ5z9Jrj0YFQyZp6G5rKQ8kzXkzXkG'),
+('Bob', 'Jones', 'bob', 'bob@example.com', '$2a$10$7QJ8zQZlZkz1QW5ZQJz7UeQxQ5z9Jrj0YFQyZp6G5rKQ8kzXkzXkG'),
+('Charlie', 'Brown', 'charlie', 'charlie@example.com', '$2a$10$7QJ8zQZlZkz1QW5ZQJz7UeQxQ5z9Jrj0YFQyZp6G5rKQ8kzXkzXkG');
+
+INSERT INTO tournaments (name, host_id, status, type, max_players)
+VALUES ('Test Tournament', 1, 'open', 'single_elimination', 8);
+
+INSERT INTO tournament_players (tournament_id, user_id, seed) VALUES
+(1, 1, 1),
+(1, 2, 2),
+(1, 3, 3),
+(1, 4, 4);

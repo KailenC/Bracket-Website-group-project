@@ -54,9 +54,10 @@ const joinTournament = async (req, res) => {
 };
 
 const startTournament = async (req, res) => {
-  const { tournamentId } = req.body;
+  const { tournament_id } = req.body;
 
-  const players = await tournamentModel.getSeededPlayers(tournamentId);
+  const players = await tournamentModel.getSeededPlayers(tournament_id);
+  //console.log(players);
   if (players.length < 2) {
     return res
       .status(400)
@@ -68,11 +69,11 @@ const startTournament = async (req, res) => {
       .json({ error: "All players must have a seed before starting" });
   }
 
-  await tournamentModel.createBracket(tournamentId);
+  await tournamentModel.createBracket(tournament_id);
 
   await pool.query(
     `UPDATE tournaments SET status = 'in_progress' WHERE id = $1`,
-    [tournamentId],
+    [tournament_id],
   );
 
   res.json({ message: "Bracket created, tournament started" });
@@ -93,7 +94,7 @@ const setSeed = async (req, res) => {
 
   try {
     const updated = await tournamentModel.setSeed({
-      tournamentId: tournament_id,
+      tournament_id: tournament_id,
       userId: user_id,
       seed,
     });

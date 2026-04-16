@@ -1,11 +1,11 @@
 const pool = require("../config/db");
 
-const getMatch = async ({ tournamentId, round, player1Id, player2Id }) => {
+const getMatch = async ({ tournament_id, round, player1Id, player2Id }) => {
   const result = await pool.query(
     `SELECT * FROM matches 
      WHERE tournament_id = $1 AND round = $2 
      AND player1_id = $3 AND player2_id = $4`,
-    [tournamentId, round, player1Id, player2Id],
+    [tournament_id, round, player1Id, player2Id],
   );
   return result.rows[0];
 };
@@ -18,7 +18,7 @@ const getMatchById = async (matchId) => {
 };
 
 const updateMatch = async ({
-  tournamentId,
+  tournament_id,
   round,
   player1Id,
   player2Id,
@@ -37,7 +37,7 @@ const updateMatch = async ({
       score2,
       winnerId,
       status,
-      tournamentId,
+      tournament_id,
       round,
       player1Id,
       player2Id,
@@ -47,14 +47,14 @@ const updateMatch = async ({
 };
 
 // Finds the next round match slot the winner should go into
-const getNextMatch = async ({ tournamentId, currentRound, matchNumber }) => {
+const getNextMatch = async ({ tournament_id, currentRound, matchNumber }) => {
   const nextRound = currentRound + 1;
   const nextMatchNumber = Math.ceil(matchNumber / 2);
 
   const result = await pool.query(
     `SELECT * FROM matches 
      WHERE tournament_id = $1 AND round = $2 AND match_number = $3`,
-    [tournamentId, nextRound, nextMatchNumber],
+    [tournament_id, nextRound, nextMatchNumber],
   );
   return result.rows[0];
 };
