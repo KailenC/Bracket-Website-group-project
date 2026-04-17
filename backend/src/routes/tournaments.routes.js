@@ -4,15 +4,24 @@ const router = express.Router();
 
 const tournamentController = require("../controllers/tournaments.controller");
 
-// when we have functions we can fix these
-router.post("/handleScores", tournamentController.handleMatchResults);
+// non protected routes
 router.get("/:id", tournamentController.getTournament);
-router.post("/create", tournamentController.createTournament);
-router.get("", tournamentController.getPublicTournaments);
-router.post("/join", tournamentController.joinTournament);
-router.post("/setSeed", tournamentController.setSeed);
-router.post("/fillSeeds", tournamentController.fillSeeds); //should always be called before a tournament is started
-router.post("/startTournament", tournamentController.startTournament);
 router.get("/getBracket", tournamentController.getBrackets);
+router.get("", tournamentController.getPublicTournaments);
+
+// protected routes
+router.post(
+  "/create",
+  authenticateToken,
+  tournamentController.createTournament,
+);
+router.post("/join", authenticateToken, tournamentController.joinTournament);
+router.post("/setSeed", authenticateToken, tournamentController.setSeed);
+router.post("/fillSeeds", authenticateToken, tournamentController.fillSeeds); //should always be called before a tournament is started
+router.post(
+  "/startTournament",
+  authenticateToken,
+  tournamentController.startTournament,
+);
 
 module.exports = router;

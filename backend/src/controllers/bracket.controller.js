@@ -2,11 +2,11 @@ const bracketModel = require("../models/bracket.model");
 const pool = require("../config/db");
 
 const enterResultsIndividual = async (req, res) => {
-  const { tournamentId, round, player1Id, player2Id, score1, score2 } =
+  const { tournament_id, round, player1Id, player2Id, score1, score2 } =
     req.body;
 
   const match = await bracketModel.getMatch({
-    tournamentId,
+    tournament_id,
     round,
     player1Id,
     player2Id,
@@ -19,7 +19,7 @@ const enterResultsIndividual = async (req, res) => {
     currScore1 === 3 ? player1Id : currScore2 === 3 ? player2Id : null;
 
   const updatedMatch = await bracketModel.updateMatch({
-    tournamentId,
+    tournament_id,
     round,
     player1Id,
     player2Id,
@@ -31,20 +31,20 @@ const enterResultsIndividual = async (req, res) => {
 
   // Only advance if this game sealed the match
   if (winnerId !== null) {
-    await advanceWinner({ tournamentId, completedMatch: updatedMatch });
+    await advanceWinner({ tournament_id, completedMatch: updatedMatch });
   }
 
   res.json(updatedMatch);
 };
 
 const enterResultsSeries = async (req, res) => {
-  const { tournamentId, round, player1Id, player2Id, score1, score2 } =
+  const { tournament_id, round, player1Id, player2Id, score1, score2 } =
     req.body;
 
   const winnerId = score1 > score2 ? player1Id : player2Id;
 
   const updatedMatch = await bracketModel.updateMatch({
-    tournamentId,
+    tournament_id,
     round,
     player1Id,
     player2Id,
@@ -54,16 +54,16 @@ const enterResultsSeries = async (req, res) => {
     status: "complete",
   });
 
-  await advanceWinner({ tournamentId, completedMatch: updatedMatch });
+  await advanceWinner({ tournament_id, completedMatch: updatedMatch });
 
   res.json(updatedMatch);
 };
 
-const advanceWinner = async ({ tournamentId, completedMatch }) => {
+const advanceWinner = async ({ tournament_id, completedMatch }) => {
   const { winner_id, round, match_number } = completedMatch;
 
   const nextMatch = await bracketModel.getNextMatch({
-    tournamentId,
+    tournament_id,
     currentRound: round,
     matchNumber: match_number,
   });
@@ -72,7 +72,7 @@ const advanceWinner = async ({ tournamentId, completedMatch }) => {
   if (!nextMatch) {
     await pool.query(
       `UPDATE tournaments SET status = 'complete' WHERE id = $1`,
-      [tournamentId],
+      [tournament_id],
     );
     return null;
   }
