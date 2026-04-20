@@ -29,7 +29,9 @@ function Login() {
         );
         return;
       } else {
-        setError(data.message || "Login successful!");
+        localStorage.setItem("token", data.token);
+
+        navigate("/dashboard");
       }
     } catch (error) {
       setError("An error occurred during login. Please try again.");

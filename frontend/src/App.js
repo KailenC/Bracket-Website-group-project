@@ -17,9 +17,12 @@ function App() {
         </div>
 
         <div className="right">
-          <Link to="/register" className="btn">Register</Link>
-          <Link to="/login" className="btn">Login</Link>
-          
+          <Link to="/register" className="btn">
+            Register
+          </Link>
+          <Link to="/login" className="btn">
+            Login
+          </Link>
         </div>
       </div>
 
