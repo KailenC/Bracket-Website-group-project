@@ -1,18 +1,25 @@
 import { Link } from "react-router-dom";
 function Main() {
+
+  const token = localStorage.getItem("token");
+  const isLoggedIn = !!token;
+
   return (
     <div>
       <div className="center-container">
         <h1>Welcome to Bracket Land!!</h1>
         <h2>Join the community and compete!</h2>
 
-        <h3>
-          New?{" "}
-          <Link to="/register" className="btn">
-            Register
-          </Link>{" "}
-          Now
-        </h3>
+        {!isLoggedIn && (
+          <h3>
+            New?{" "}
+            <Link to="/register" className="btn">
+              Register
+            </Link>{" "}
+            Now
+          </h3>
+        )}
+        //maybe add the +button here in the future
       </div>
 
       <br></br>

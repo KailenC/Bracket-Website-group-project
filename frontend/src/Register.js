@@ -35,11 +35,9 @@ function Register() {
       if (!response.ok) {
         setError(data.error || "Registration failed. Please try again."); // the failure part works idk if the success part works I need the database to test that
         return;
-      } else if (response.ok) {
-        setMessage(
-          data.message || "Registration successful! You can now log in.",
-        );
       }
+      setMessage(data.message || "Registration successful! You can now log in.");
+      
     } catch (error) {
       setError("An error occurred during registration. Please try again.");
       return;

@@ -23,17 +23,19 @@ function Login() {
       });
 
       const data = await response.json();
+
       if (!response.ok) {
-        setError(
-          data.error || "Login failed. Check your username or password.",
-        );
+        setError(data.error || "Login failed. Check your username or password.");
         return;
-      } else {
-        setError(data.message || "Login successful!");
       }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("username", data.user.username);
+      setMessage(data.message || "Login successful!");
+      navigate("/dashboard");
+
     } catch (error) {
       setError("An error occurred during login. Please try again.");
-      return;
     }
   };
 
@@ -63,7 +65,27 @@ function Login() {
 
       {message && <p className="success-message">{message}</p>}
       {loginError && <p className="error-message">{loginError}</p>}
+      
+      
+      FAKE DEMO USER FOR TESTING PURPOSES REMOVE LATER
+      <button
+        className="btn"
+        onClick={() => {
+          const fakeToken =
+            "fake." + btoa(JSON.stringify({ username: "DemoUser" })) + ".token";
+
+          localStorage.setItem("token", fakeToken);
+          navigate("/dashboard");
+        }}
+      >
+        Demo Login
+      </button>
+
+      
     </div>
+
+  
+    
   );
 }
 export default Login;

@@ -36,7 +36,7 @@ const register = async (req, res) => {
         .status(400)
         .json({ error: "Username or email already exists" });
     }
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -68,7 +68,7 @@ const login = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500);
+    res.status(500).json({ error: err.message });
   }
 };
 
