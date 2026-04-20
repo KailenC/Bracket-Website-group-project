@@ -62,8 +62,8 @@ const joinTournament = async (req, res) => {
 const startTournament = async (req, res) => {
   const { tournament_id } = req.body;
 
-  const tournament = tournamentModel.getTournament(tournament_id);
-  if (tournament.host_id !== re1.user.id) {
+  const tournament = await tournamentModel.getTournament(tournament_id);
+  if (tournament.host_id !== req.user.id) {
     return res
       .status(403)
       .json({ error: "Only the host can start tournament" });
