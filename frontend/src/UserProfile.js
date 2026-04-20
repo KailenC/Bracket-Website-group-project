@@ -68,7 +68,7 @@ export default function UserProfile() {
       fetch("http://localhost:8080/user/profile", {
         headers: { Authorization: `Bearer ${token}` },
       }),
-      fetch("http://localhost:8080/user/brackets", {
+      fetch("http://localhost:8080/user/tournaments", {
         headers: { Authorization: `Bearer ${token}` },
       }),
     ])
