@@ -540,9 +540,7 @@ export default function Dashboard() {
               <BracketCard
                 key={`${b.id}-${b.name}`}
                 bracket={b}
-                onOpen={() =>
-                  alert(`Bracket ${b.id} — bracket builder page coming next!`)
-                }
+                onOpen={() => navigate(`/tournament/${b.id}`)}
               />
             ))}
           </div>

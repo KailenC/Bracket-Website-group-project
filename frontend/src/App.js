@@ -4,6 +4,7 @@ import Login from "./Login";
 import Main from "./Main";
 import Dashboard from "./Dashboard";
 import UserProfile from "./UserProfile";
+import TournamentPage from "./TournamentPage";
 import "./App.css";
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<UserProfile />} />
+        <Route path="/tournament/:id" element={<TournamentPage />} />
       </Routes>
     </Router>
   );
