@@ -14,7 +14,7 @@ const bracketRoutes = require("../src/routes/bracket.routes");
 // when the app recieves these requests, it sends them to routes
 app.use("/auth", authRoutes);
 app.use("/tournaments", tournamentRoutes);
-app.use("/matches", bracketRoutes);
+app.use("/brackets", bracketRoutes);
 
 app.get("/", (req, res) => {
   res.send("Server is working!");

@@ -145,17 +145,21 @@ const getPublicTournaments = async (req, res) => {
 };
 
 const getBrackets = async (req, res) => {
-  const { id } = req.body;
-  const tournament = await tournamentModel.getTournament(id);
-  if (!tournament) {
-    return res.status(404).json({ error: "Tournament not found" });
+  const { id } = req.params;
+  try {
+    const tournament = await tournamentModel.getTournament(id);
+    if (!tournament) {
+      return res.status(404).json({ error: "Tournament not found" });
+    }
+    if (tournament.status === "open") {
+      return res.status(400).json({ error: "Bracket not generated yet" });
+    }
+    const bracket = await tournamentModel.getBracket(id);
+    res.json(bracket);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
   }
-  if (tournament.status === "open") {
-    return res.status(400).json({ error: "Bracket not generated yet" });
-  }
-
-  const bracket = await tournamentModel.getBracket(id);
-  res.json(bracket);
 };
 
 module.exports = {
