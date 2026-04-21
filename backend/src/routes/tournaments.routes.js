@@ -7,7 +7,7 @@ const tournamentController = require("../controllers/tournaments.controller");
 // non protected routes
 router.get("/my", authenticateToken, tournamentController.getMyTournaments);
 router.get("/:id", tournamentController.getTournament);
-router.get("/getBracket", tournamentController.getBrackets);
+router.get("/getBracket/:id", tournamentController.getBrackets);
 router.get("", tournamentController.getPublicTournaments);
 
 // protected routes

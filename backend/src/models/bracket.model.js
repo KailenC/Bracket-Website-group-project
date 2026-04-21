@@ -69,10 +69,19 @@ const assignPlayerToMatch = async ({ matchId, playerId, slot }) => {
   return result.rows[0];
 };
 
+const getHostID = async (tournament_id) => {
+  const result = await pool.query(
+    `SELECT host_id FROM tournaments WHERE id = $1`,
+    [tournament_id]
+  );
+  return result.rows[0]?.host_id;
+};
+
 module.exports = {
   getMatch,
   getMatchById,
   updateMatch,
   getNextMatch,
   assignPlayerToMatch,
+  getHostID
 };

@@ -15,7 +15,7 @@ export default function TournamentPage() {
       .then((r) => r.json())
       .then(setTournament);
 
-    fetch(`http://localhost:8080/tournaments/getBracket`, {
+    fetch(`http://localhost:8080/tournaments/getBracket/${id}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

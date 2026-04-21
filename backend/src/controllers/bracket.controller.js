@@ -41,22 +41,40 @@ const enterResultsSeries = async (req, res) => {
   const { tournament_id, round, player1Id, player2Id, score1, score2 } =
     req.body;
 
-  const winnerId = score1 > score2 ? player1Id : player2Id;
+  const user_id = req.user.id;
+  const hostID = await bracketModel.getHostID(tournament_id);
 
-  const updatedMatch = await bracketModel.updateMatch({
-    tournament_id,
-    round,
-    player1Id,
-    player2Id,
-    score1,
-    score2,
-    winnerId,
-    status: "complete",
-  });
+    if (hostID !== user_id) {
+      return res
+        .status(403)
+        .json({ error: "Non-Host attempting to modify bracket" });
+    }
+  try {
+    const winnerId = score1 > score2 ? player1Id : player2Id;
 
-  await advanceWinner({ tournament_id, completedMatch: updatedMatch });
+    const updatedMatch = await bracketModel.updateMatch({
+      tournament_id,
+      round,
+      player1Id,
+      player2Id,
+      score1,
+      score2,
+      winnerId,
+      status: "complete",
+    });
 
-  res.json(updatedMatch);
+    if (!updatedMatch) {
+      return res.status(404).json({ error: "Match not found" });
+    }
+
+    await advanceWinner({ tournament_id, completedMatch: updatedMatch });
+
+    res.json(updatedMatch);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
 };
 
 const advanceWinner = async ({ tournament_id, completedMatch }) => {
