@@ -1,10 +1,16 @@
 import { Link } from "react-router-dom";
 function Main() {
+
+  const token = localStorage.getItem("token");
+  const isLoggedIn = !!token;
+
   return (
     <div>
       <div className="center-container">
         <h1>Welcome to Bracket Land!!</h1>
         <h2>Join the community and compete!</h2>
+
+        {(!isLoggedIn) && (
 
         <h3>
           New?{" "}
@@ -13,6 +19,7 @@ function Main() {
           </Link>{" "}
           Now
         </h3>
+      )}
       </div>
 
       <br></br>

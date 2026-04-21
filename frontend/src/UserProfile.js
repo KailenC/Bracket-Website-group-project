@@ -174,15 +174,7 @@ export default function UserProfile() {
             My Profile
           </Link>
           */}
-          <button
-            className="btn"
-            onClick={() => {
-              localStorage.removeItem("token");
-              navigate("/login");
-            }}
-          >
-            Log out
-          </button>
+
         </div>
       </div>
 

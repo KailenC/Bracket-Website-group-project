@@ -436,15 +436,6 @@ export default function Dashboard() {
             My Profile
           </Link>
 */}
-          <button
-            className="btn"
-            onClick={() => {
-              localStorage.removeItem("token");
-              navigate("/login");
-            }}
-          >
-            Log out
-          </button>
         </div>
       </div>
 
