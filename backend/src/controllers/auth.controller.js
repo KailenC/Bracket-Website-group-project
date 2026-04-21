@@ -73,7 +73,7 @@ const login = async (req, res) => {
 };
 
 const getUserProfile = async (req, res) => {
-  console.log("REQ.USER:", req.user);
+  //console.log("REQ.USER:", req.user);
   try {
     const user = await userModel.getUserByUsername(req.user.username);
 
