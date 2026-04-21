@@ -65,18 +65,18 @@ export default function UserProfile() {
 
     // Fetch profile and bracket history at the same time
 
-    console.log("Starting fetch...");
+    //console.log("Starting fetch...");
     Promise.all([
       fetch("http://localhost:8080/auth/profile", {
         headers: { Authorization: `Bearer ${token}` },
       }),
-      fetch("http://localhost:8080/tournaments", {
+      fetch("http://localhost:8080/tournaments/my", {
         headers: { Authorization: `Bearer ${token}` },
       }),
     ])
       .then(async ([pRes, bRes]) => {
-        console.log("profile status:", pRes.status);
-        console.log("brackets status:", bRes.status);
+        //console.log("profile status:", pRes.status);
+        //console.log("brackets status:", bRes.status);
         if (!pRes.ok || !bRes.ok) throw new Error();
         const [p, b] = await Promise.all([pRes.json(), bRes.json()]);
         setProfile(p);
@@ -145,6 +145,7 @@ export default function UserProfile() {
           🏆 BracketMaker
         </Link>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          {/*
           <Link
             to="/dashboard"
             className="btn"
@@ -172,6 +173,7 @@ export default function UserProfile() {
           >
             My Profile
           </Link>
+          */}
           <button
             className="btn"
             onClick={() => {

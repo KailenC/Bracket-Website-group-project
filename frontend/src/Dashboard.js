@@ -300,14 +300,25 @@ export default function Dashboard() {
     } catch {}
 
     // Fetch brackets from backend
-    fetch("http://localhost:8080/tournaments", {
+    fetch("http://localhost:8080/tournaments/my", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => {
         if (!r.ok) throw new Error();
         return r.json();
       })
-      .then((data) => setBrackets(data))
+      .then((data) =>
+        setBrackets(
+          data.map((t) => ({
+            id: t.id,
+            name: t.name,
+            sport: t.type,
+            teams: t.max_players,
+            status: t.status,
+            progress: 0,
+          })),
+        ),
+      )
       .catch(() => setBrackets(MOCK_BRACKETS)) // use fake data if backend not ready
       .finally(() => setLoading(false));
   }, [navigate]);
@@ -334,10 +345,10 @@ export default function Dashboard() {
       setBrackets((prev) => [
         {
           id: t.id,
-          name: t.tournament_name,
-          sport: t.tournament_type,
+          name: t.name,
+          sport: t.type,
           teams: t.max_players,
-          status: "active",
+          status: t.status,
           progress: 0,
         },
         ...prev,
@@ -396,6 +407,7 @@ export default function Dashboard() {
           🏆 BracketMaker
         </Link>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          {/*
           <Link
             to="/dashboard"
             className="btn"
@@ -423,6 +435,7 @@ export default function Dashboard() {
           >
             My Profile
           </Link>
+*/}
           <button
             className="btn"
             onClick={() => {
@@ -527,9 +540,7 @@ export default function Dashboard() {
               <BracketCard
                 key={`${b.id}-${b.name}`}
                 bracket={b}
-                onOpen={() =>
-                  alert(`Bracket ${b.id} — bracket builder page coming next!`)
-                }
+                onOpen={() => navigate(`/tournament/${b.id}`)}
               />
             ))}
           </div>

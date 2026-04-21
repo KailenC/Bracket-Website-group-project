@@ -144,6 +144,13 @@ const getPublicTournaments = async (req, res) => {
   res.json(tournaments);
 };
 
+const getMyTournaments = async (req, res) => {
+  const user_id = req.user.id;
+
+  const tournaments = await tournamentModel.getTournamentByUserID(user_id);
+  res.json(tournaments);
+};
+
 const getBrackets = async (req, res) => {
   const { id } = req.params;
   try {
@@ -166,6 +173,7 @@ module.exports = {
   getTournament,
   createTournament,
   getPublicTournaments,
+  getMyTournaments,
   joinTournament,
   startTournament,
   setSeed,

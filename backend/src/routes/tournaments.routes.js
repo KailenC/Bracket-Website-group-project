@@ -5,9 +5,10 @@ const router = express.Router();
 const tournamentController = require("../controllers/tournaments.controller");
 
 // non protected routes
-router.get("/:id", tournamentController.getTournament); //works
-router.get("/getBracket/:id", tournamentController.getBrackets); //works
-router.get("", tournamentController.getPublicTournaments); ///works
+router.get("/my", authenticateToken, tournamentController.getMyTournaments);
+router.get("/:id", tournamentController.getTournament);
+router.get("/getBracket", tournamentController.getBrackets);
+router.get("", tournamentController.getPublicTournaments);
 
 // protected routes
 router.post(
