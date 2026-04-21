@@ -188,7 +188,8 @@ function BracketCard({ bracket, onOpen }) {
 // Modal for creating a new bracket, with inputs for bracket name and sport selection
 function CreateModal({ onClose, onCreate }) {
   const [name, setName] = useState("");
-  const [sport, setSport] = useState("NFL");
+  const [sport, setSport] = useState("");
+  const [maxPlayers, setMaxPlayers] = useState(8);
 
   return (
     <div
@@ -222,40 +223,52 @@ function CreateModal({ onClose, onCreate }) {
           New Bracket
         </h2>
 
+        {/* name */}
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           <label style={S.label}>Bracket Name</label>
           <input
-            autoFocus
             style={S.input}
             placeholder="e.g. NFL Playoffs 2025"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) =>
-              e.key === "Enter" && name.trim() && onCreate(name, sport)
-            }
           />
         </div>
 
+        {/* sport */}
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <label style={S.label}>Sport</label>
-          <select
+          <label style={S.label}>Sport Type</label>
+          <input
             style={S.input}
+            placeholder="e.g. NFL, NBA, NCAA"
             value={sport}
             onChange={(e) => setSport(e.target.value)}
+          />
+        </div>
+
+        {/* max players */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <label style={S.label}>Max Players</label>
+          <select
+            style={S.input}
+            value={maxPlayers}
+            onChange={(e) => setMaxPlayers(Number(e.target.value))}
           >
-            {["NFL", "NBA", "NCAA", "NHL", "FIFA", "MLB"].map((s) => (
-              <option key={s}>{s}</option>
+            {[4, 8, 16, 32, 64].map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
             ))}
           </select>
         </div>
 
+        {/* buttons */}
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button style={S.ghost} onClick={onClose}>
             Cancel
           </button>
           <button
             style={{ ...S.primary, opacity: name.trim() ? 1 : 0.4 }}
-            onClick={() => name.trim() && onCreate(name, sport)}
+            onClick={() => name.trim() && onCreate(name, sport, maxPlayers)}
           >
             Create
           </button>
@@ -287,32 +300,59 @@ export default function Dashboard() {
     } catch {}
 
     // Fetch brackets from backend
-    fetch("http://localhost:8080/brackets", {
+    fetch("http://localhost:8080/tournaments/my", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => {
         if (!r.ok) throw new Error();
         return r.json();
       })
-      .then((data) => setBrackets(data))
+      .then((data) =>
+        setBrackets(
+          data.map((t) => ({
+            id: t.id,
+            name: t.name,
+            sport: t.type,
+            teams: t.max_players,
+            status: t.status,
+            progress: 0,
+          })),
+        ),
+      )
       .catch(() => setBrackets(MOCK_BRACKETS)) // use fake data if backend not ready
       .finally(() => setLoading(false));
   }, [navigate]);
 
-  const handleCreate = async (name, sport) => {
+  const handleCreate = async (name, sport, players) => {
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch("http://localhost:8080/brackets", {
+      const res = await fetch("http://localhost:8080/tournaments/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name, sport }),
+        body: JSON.stringify({
+          tournament_name: name,
+          tournament_type: sport,
+          max_players: players,
+        }),
       });
       if (!res.ok) throw new Error();
-      const created = await res.json();
-      setBrackets((prev) => [created, ...prev]);
+      const data = await res.json();
+      const t = data.tournament;
+
+      setBrackets((prev) => [
+        {
+          id: t.id,
+          name: t.name,
+          sport: t.type,
+          teams: t.max_players,
+          status: t.status,
+          progress: 0,
+        },
+        ...prev,
+      ]);
     } catch {
       // Add locally if backend not ready yet
       setBrackets((prev) => [
@@ -367,6 +407,7 @@ export default function Dashboard() {
           🏆 BracketMaker
         </Link>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          {/*
           <Link
             to="/dashboard"
             className="btn"
@@ -394,6 +435,7 @@ export default function Dashboard() {
           >
             My Profile
           </Link>
+*/}
           <button
             className="btn"
             onClick={() => {
@@ -496,7 +538,7 @@ export default function Dashboard() {
           >
             {brackets.map((b) => (
               <BracketCard
-                key={b.id}
+                key={`${b.id}-${b.name}`}
                 bracket={b}
                 onOpen={() =>
                   alert(`Bracket ${b.id} — bracket builder page coming next!`)

@@ -7,6 +7,18 @@ const getTournament = async (tournament_id) => {
   return result.rows[0];
 };
 
+const getTournamentByUserID = async (user_id) => {
+  const result = await pool.query(
+    `SELECT DISTINCT t.* 
+    FROM tournaments t 
+    LEFT JOIN tournament_players tp ON t.id = tp.tournament_id 
+    WHERE t.host_id = $1 OR tp.user_id = $1 
+    ORDER BY t.created_at DESC`,
+    [user_id],
+  );
+  return result.rows;
+};
+
 const updateTournament = async (tournamentData) => {};
 
 const createTournament = async (tournamentData) => {
@@ -243,6 +255,7 @@ const getBracket = async (tournament_id) => {
 
 module.exports = {
   getTournament,
+  getTournamentByUserID,
   updateTournament,
   createTournament,
   joinTournament,

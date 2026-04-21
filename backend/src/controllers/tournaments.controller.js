@@ -144,8 +144,15 @@ const getPublicTournaments = async (req, res) => {
   res.json(tournaments);
 };
 
+const getMyTournaments = async (req, res) => {
+  const user_id = req.user.id;
+
+  const tournaments = await tournamentModel.getTournamentByUserID(user_id);
+  res.json(tournaments);
+};
+
 const getBrackets = async (req, res) => {
-  const { id } = req.body;
+  const { id } = req.query;
   const tournament = await tournamentModel.getTournament(id);
   if (!tournament) {
     return res.status(404).json({ error: "Tournament not found" });
@@ -162,6 +169,7 @@ module.exports = {
   getTournament,
   createTournament,
   getPublicTournaments,
+  getMyTournaments,
   joinTournament,
   startTournament,
   setSeed,

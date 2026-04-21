@@ -73,16 +73,22 @@ const login = async (req, res) => {
 };
 
 const getUserProfile = async (req, res) => {
-  const { username } = req.body;
+  //console.log("REQ.USER:", req.user);
+  try {
+    const user = await userModel.getUserByUsername(req.user.username);
 
-  const user = await userModel.getUserByUsername(username);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
-  if (!user) {
-    return res.status(400).json({ error: "User not found" });
+    res.json({
+      username: user.username,
+      email: user.email,
+      id: user.id,
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
   }
-
-  // implement user details, etc
-  res.status(200).json({ error: "not implemented" });
 };
 
 module.exports = { register, login, getUserProfile };
