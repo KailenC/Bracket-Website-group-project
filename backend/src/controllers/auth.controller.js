@@ -5,10 +5,6 @@ const bcrypt = require("bcryptjs");
 const register = async (req, res) => {
   const { first_name, last_name, username, email, password } = req.body;
 
-  // hash password
-  const saltedRounds = 10;
-  const hashedPassword = await bcrypt.hash(password, saltedRounds);
-
   // Basic validation
   if (!first_name || !last_name || !username || !email || !password) {
     return res.status(400).json({ error: "All fields are required" });
@@ -20,6 +16,9 @@ const register = async (req, res) => {
   }
 
   try {
+    // hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const newUser = await userModel.createUser({
       first_name,
       last_name,
@@ -27,16 +26,23 @@ const register = async (req, res) => {
       email,
       hashedPassword,
     });
-    res.status(201).json({ message: "User registered", user: newUser });
+    res.status(201).json({
+      message: "User registered",
+      user: {
+        id: newUser.id,
+        username: newUser.username,
+        email: newUser.email,
+      },
+    });
   } catch (err) {
-    console.error(err.message);
+    console.error("Internal server error");
     // Handle duplicate username/email
     if (err.code === "23505") {
       return res
         .status(400)
         .json({ error: "Username or email already exists" });
     }
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -47,16 +53,19 @@ const login = async (req, res) => {
     const user = await userModel.getUserByUsername(username);
 
     if (!user) {
-      return res.status(400).json({ error: "Invalid username or password" });
+      return res.status(401).json({ error: "Invalid username or password" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(400).json({ error: "Invalid username or password" });
+      return res.status(401).json({ error: "Invalid username or password" });
     }
 
-    const token = jwtUtil.generateToken(user);
+    const token = jwtUtil.generateToken({
+      id: user.id,
+      username: user.username,
+    });
 
     res.status(200).json({
       message: "Login Successful",
