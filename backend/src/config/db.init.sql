@@ -49,16 +49,32 @@ CREATE TABLE matches (
 
 -- password "password123" hashed
 INSERT INTO users (first_name, last_name, username, email, password) VALUES
-('Kailen', 'C', 'kailen', 'kailen@example.com', '$2a$10$7QJ8zQZlZkz1QW5ZQJz7UeQxQ5z9Jrj0YFQyZp6G5rKQ8kzXkzXkG'),
+('Kailen', 'C', 'kailen', 'kailen@example.com', '$2a$10$YTdHpu4Xajkz0jDMfbcm..ZQwsNSHwBvJfRUJlsj9WT007fcYGObe'),
 ('Alice', 'Smith', 'alice', 'alice@example.com', '$2a$10$7QJ8zQZlZkz1QW5ZQJz7UeQxQ5z9Jrj0YFQyZp6G5rKQ8kzXkzXkG'),
 ('Bob', 'Jones', 'bob', 'bob@example.com', '$2a$10$7QJ8zQZlZkz1QW5ZQJz7UeQxQ5z9Jrj0YFQyZp6G5rKQ8kzXkzXkG'),
-('Charlie', 'Brown', 'charlie', 'charlie@example.com', '$2a$10$7QJ8zQZlZkz1QW5ZQJz7UeQxQ5z9Jrj0YFQyZp6G5rKQ8kzXkzXkG');
+('Charlie', 'Brown', 'charlie', 'charlie@example.com', '$2a$10$7QJ8zQZlZkz1QW5ZQJz7UeQxQ5z9Jrj0YFQyZp6G5rKQ8kzXkzXkG'),
+('Alitce', 'Smtith', 'altice', 'alicte@example.com', '$2a$10$7QJ8zQZlZkz1QW5ZQJz7UeQxQ5z9Jrj0YFQyZp6G5rKQ8kzXkzXkG'),
+('Michael', 'Brown', 'mikeb', 'mike.brown@example.com', '$2a$10$7QJ8zQZlZkz1QW5ZQJz7UeQxQ5z9Jrj0YFQyZp6G5rKQ8kzXkzXkG'),
+('Sarah', 'Johnson', 'sarahj', 'sarah.j@example.com', '$2a$10$7QJ8zQZlZkz1QW5ZQJz7UeQxQ5z9Jrj0YFQyZp6G5rKQ8kzXkzXkG'),
+('D3avid', 'Lede', 'dldee', 'dadvid.lee@example.com', '$2a$10$7QJ8zQZlZkz1QW5ZQJz7UeQxQ5z9Jrj0YFQyZp6G5rKQ8kzXkzXkG'),
+('Dgavid', 'Lgee', 'dlege', 'dgavid.lee@example.com', '$2a$10$7QJ8zQZlZkz1QW5ZQJz7UeQxQ5z9Jrj0YFQyZp6G5rKQ8kzXkzXkG'),
+('Daevid', 'Leee', 'dleee', 'daveid.lee@example.com', '$2a$10$7QJ8zQZlZkz1QW5ZQJz7UeQxQ5z9Jrj0YFQyZp6G5rKQ8kzXkzXkG'),
+('Dajvid', 'Leej', 'dleje', 'davjid.lee@example.com', '$2a$10$7QJ8zQZlZkz1QW5ZQJz7UeQxQ5z9Jrj0YFQyZp6G5rKQ8kzXkzXkG'),
+('Davyid', 'yLee', 'dlyee', 'dayvid.lee@example.com', '$2a$10$7QJ8zQZlZkz1QW5ZQJz7UeQxQ5z9Jrj0YFQyZp6G5rKQ8kzXkzXkG');
 
 INSERT INTO tournaments (name, host_id, status, type, max_players)
-VALUES ('Test Tournament', 1, 'open', 'single_elimination', 8);
+VALUES ('Test Tournament', 1, 'open', 'single_elimination', 32);
 
 INSERT INTO tournament_players (tournament_id, user_id, seed) VALUES
 (1, 1, 1),
 (1, 2, 2),
 (1, 3, 3),
-(1, 4, 4);
+(1, 4, 4),
+(1, 5, 5),
+(1, 6, 6),
+(1, 7, 7),
+(1, 8, 8),
+(1, 9, 9),
+(1, 10, 10),
+(1, 11, 11),
+(1, 12, 12);
