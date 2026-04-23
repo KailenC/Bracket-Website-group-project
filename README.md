@@ -1,131 +1,75 @@
-# **Hello!**
-## This is the work in progress README that we have for our CMPE 131 Project.
+# This is the implementation portion of our ReadMe for CMPE 131.
 
-We currently plan utalizing a tech stack of React for our frontend, Node + Express for our backend, and a PostgreSQL database that we may host on Docker in the future.
+## Download Instructions
 
-As we work on our project backlog, feel free to suggest other languages and/or frameworks that could make tasks easier because Kailen and I have minimal project expierience.
-Also, If you guys are ever working on some feature and feel that it could use a section in our README due to its importance or complexity, do not hesitate to add either a little
-blurb or a ToDo note for later :)
+### Use either GitHub Desktop or some Command Line Interface client to clone the repository.  
 
-## **Mac Instructions**
-!!! for mac you need to run: ``brew install`` node in terminal
+CLI Cloning Instructions:
+  - Cloning with HTTPS: ``git clone https://github.com/KailenC/Bracket-Website-group-project.git``
+  - Cloning with SSH: ``git clone git@github.com:KailenC/Bracket-Website-group-project.git``
 
-After install, you can run "npm start" in frontend or backend file
+Cloning with GitHub Desktop:  
+  - Click "Current Repository" in the top left of the desktop application
+  - Enter the "Add" dropdown menu and click “Clone Repository”
+  - Click the “URL” option and enter the following URL: ``https://github.com/KailenC/Bracket-Website-group-project#``
 
-## **Windows Instructions**
+## Installing Dependencies
 
-### **Node.js**
-Install Node.js from the offical website: https://nodejs.org/en/download
+This project uses Node.js for our backend and PostgreSQL for our database. Both need to be installed and added to the system path.
 
-(I downloaded the installer but downloading the binary might work as well)
+### Installing Node
 
-Find the location of the installed node.js folder and copy the path. The default installation path is routed into Program Files  
-- Example of my Copied Path: ``C:\Program Files\nodejs``
+Go to the official Node.js website and download the most recent version of Node. https://nodejs.org/en/download
 
-Next, search "Edit the system environment variables" in the Windows Search bar and go to the "Environment Variables" button at the bottom
+### Adding Node to the System Path 
 
-Under User Variables (The top section of the pop-out), click New and then set  
-- Variable Name: ``Node.js``
-- Variable Value: ``C:\Program Files\nodejs``
+- Find and copy the path where Node is installed. 
+- Search “Edit the system environment variables” on Windows
+- Click on the "Environment Variables" button.
+- Find the system variables section of the pop-out menu and left click on "Path"
+- Press “Edit” and then “New” on this menu and paste in your Node path
+  - Example Path: ``C:\Program Files\nodejs``
 
-To verify if this worked, run ``node --version`` in your teminal.
+### Installing PostgreSQL
 
-Now you are able to use the Node Package Manager (npm) to install dependencies!
+Go to the official PostgreSQL website and download the most recent version of PostgreSQL here https://www.postgresql.org/download/windows/
 
-### **Repo Setup**
-Install Git Bash / Have a terminal that you can actually run commands in (I love windows)  
+Run the installer and set a username and password. Be sure to remember these as they will be used in a .env file to run the database.
 
-Now, Navigate to your desired directory location then open your terminal and type:
+### Adding PostgreSQL to the System Path
 
-``git clone git@github.com:KailenC/Bracket-Website-group-project.git``
+- Find the bin subdirectory in the PostgreSQL installation path.
+  - Example: C:\Program Files\PostgreSQL\18\bin
+- Search “Edit the system environment variables” on Windows
+- Click on the Environment Variables button.
+- Find the system variables section of the pop-out menu and left click on Path
+- Press “Edit” and then “New” on this menu and paste in your bin path
 
-This will clone the current contents of the repo into your desired folder.
+## Setting up a .env File
 
-### Installing Dependencies
-In the project's folder, enter the following commands:
-- ``npm install express``
-- ``npm install react``
-- ``npm install react-scripts``
+Navigate to the backend folder and create a new file called “.env”. Paste the following into the .env file. Make sure to edit the username and password to whatever was entered when setting up postgreSQL.
 
-To verify if this worked try the following:
-- ``cd backend ``
-- ``npm start``
-- When going to http://localhost:8080/ the output should be "Server is working!"
--  Ctrl + C to close this
+``DB_USER = "FIXME: YOUR POSTGRESQL USER NAME"``  
+``DB_HOST = "localhost"``  
+``DB_NAME = "usersdb"``  
+``DB_PASSWORD = "FIXME: POSTGRESQL PASSWORD"``  
+``DB_PORT = 5432``  
+``jwt_SECRET="FIXME: ENTER ANYTHING YOU WANT HERE"``  
 
+Once this is set up, ensure you are in the backend and run the following command:  
+- ``npm install dotenv``
 
-To test the frontend, try the following:
-- ``cd frontend  ``
-- ``npm install react-router-dom``
-- ``npm start``
--  http://localhost:3000 should open automatically with the react Logo
--  Ctrl + C to close this
+This will allow the backend to execute postgreSQL commands automatically.
 
-### **Other notes (Took a ton of time originally debugging):**
-- Dont use the psql command in bash, the terminal is not privaleged enough
-- If you setup postgreSQL via the installer on windows, default username is postgres
-- 
-I really hope this makes it easier bc I was tweaking setting this up :(
+## Initialize the database
 
-## **Helpful Software and Extensions**
-### **Postman**
-- API testing tool that can observe the response to get and post requests (Very useful when backend and frontend are out of date)
-- Can be installed at https://www.postman.com/downloads/
+To properly use the backend, a database that will store all of the necessary tables must be created. Run the following command but modify the “username” parameter with your chosen postgreSQL username.  
+- ``psql -U username -c "CREATE DATABASE usersdb"``
 
-### **VScode Extensions**
-- PostgreSQL by Chris Klokman
-  - Allows visualization of a database without directly using the psql shell
- 
-## **SQL commands
--https://www.w3schools.com/sql/default.asp
- 
-## **PSQL Commands**
-The following are useful commands to use the psql shell to interact with your database
+Next, navigate to the backend and run ./reset-db on either Windows or Mac. This will create the tables inside of the usersdb database and fill them with some test users and tournaments.  **It is VERY IMPORTANT that you close the terminal instance that ran this command or the backend will not work properly.**
 
-To access the temrinal where info will be displayed , open the psql shell and press enter until the password field is displayed
-- Enter your superuser password if on windows
-- Not required on Mac as far as I know
+## Running the Code
 
-To create and access the database we will use, enter:
-- `CREATE DATABASE usersdb;`
-- `\c usersdb;`
+Create two new terminal instances and have one cd into the frontend and the other cd into the backend.
 
-Then paste the following command in:
-- `CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
-  first_name VARCHAR(50),
-  last_name VARCHAR(50),
-  username VARCHAR(50) UNIQUE,
-  email VARCHAR(100) UNIQUE,
-  password TEXT
-);`
-
-Now the database should be properly setup on your machine. To check if users are being added, run the following
--  `select * from users;`
-
-This should print all of the contents entered in the database.
-  
-
-## **GitHub Basics** 
-for reference if you forget or want a referesher and if you use the terminal ( i personally reference a lot cause i have weak memory)
-
-git branch → check which branch
-
-git checkout main → switch to main branch
-
-git pull origin main --rebase → sync with GitHub
-
-git checkout -b new-feature → create branch (if needed)
-
-
-Make changes locally: (what you use a lot)
-
-git add . → stage changes
-
-git commit -m "message" → commit changes
-
-git push -u origin new-feature → upload to GitHub
-
-
-after you push you should discard the branch or just keep track of what you are pushing to main or else you might come across problem but nothing chat cant solve with stashing...
-
+Run ``npm start`` on both terminal instances. Now, the backend server should be running and the frontend should be accessible from http://localhost:3000/
