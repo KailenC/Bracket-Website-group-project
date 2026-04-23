@@ -365,7 +365,7 @@ export default function Dashboard() {
           progress: 0,
         },
         ...prev,
-      ]);
+      ]);                                                                                                                                                                                                                                                                                                                                             
     }
     setShowModal(false);
   };
@@ -404,6 +404,9 @@ export default function Dashboard() {
             textDecoration: "none",
           }}
         >
+          <Link to="/tournaments" className="btn" style={{ padding: "8px 16px", borderRadius: 5, fontSize: 13, textDecoration: "none" }}>
+            Browse Tournaments
+            </Link>
           🏆 BracketMaker
         </Link>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>

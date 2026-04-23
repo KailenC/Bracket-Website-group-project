@@ -188,7 +188,7 @@ export default function TournamentPage() {
                   }}
                 >
                   <div>
-                    {match.player1_id ?? "TBD"} vs {match.player2_id ?? "TBD"}
+                    {match.player1_username ?? "TBD"} vs {match.player2_username ?? "TBD"}
                   </div>
                   <div> {match.status}</div>
                 </button>
@@ -233,8 +233,8 @@ export default function TournamentPage() {
             <h2>Match</h2>
 
             <p>
-              {selectedMatch.player1_id ?? "TBD"} vs{" "}
-              {selectedMatch.player2_id ?? "TBD"}
+              {selectedMatch.player1_username ?? "TBD"} vs{" "}
+              {selectedMatch.player2_username ?? "TBD"}
             </p>
 
             <input
