@@ -24,7 +24,6 @@ const updateTournament = async (tournamentData) => {};
 const createTournament = async (tournamentData) => {
   const { tournament_name, host_id, tournament_type, max_players } =
     tournamentData;
-
   // default status
   const status = "open";
 
@@ -49,17 +48,16 @@ const joinTournament = async (tournamentData) => {
   return result.rows[0];
 };
 
+// UPDATED — also returns username by joining with users table
 const getSeededPlayers = async (tournament_id) => {
-  //console.log("tournament_id: ", tournament_id);
-
   const result = await pool.query(
-    `SELECT user_id, seed FROM tournament_players
-     WHERE tournament_id = $1
-     ORDER BY seed ASC`,
+    `SELECT tp.user_id, tp.seed, u.username
+     FROM tournament_players tp
+     JOIN users u ON tp.user_id = u.id
+     WHERE tp.tournament_id = $1
+     ORDER BY tp.seed ASC`,
     [tournament_id],
   );
-
-  //console.log("DB result: ", result.rows);
   return result.rows;
 };
 
