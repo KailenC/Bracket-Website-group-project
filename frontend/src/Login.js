@@ -61,8 +61,6 @@ function Login() {
       <button onClick={handleLogin} className="btn">
         Submit
       </button>
-      <p>Undeveloped Forgot your Password? Coming Soon!!</p>
-
       {message && <p className="success-message">{message}</p>}
       {loginError && <p className="error-message">{loginError}</p>}
     </div>

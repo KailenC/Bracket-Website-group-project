@@ -10,9 +10,8 @@ export default function TournamentPage() {
   const [player2_score, setPlayer_2Score] = useState("");
   const [players, setPlayers] = useState([]);
   const [editedSeeds, setEditedSeeds] = useState({});
+  const [seedsCollapsed, setSeedsCollapsed] = useState(false);
 
-
-  
 useEffect(() => {
   
   const token = localStorage.getItem("token");
@@ -62,7 +61,6 @@ useEffect(() => {
 
   const fetchBracket = async () => {
     const token = localStorage.getItem("token");
-
     const res = await fetch(
       `http://localhost:8080/tournaments/getBracket/${id}`,
       {
@@ -228,9 +226,21 @@ const submitSeeds = async () => {
 
   return (
     <div>
+      {/* Remove number input spinners globally for this page */}
+      <style>{`
+        input[type=number].no-spinner::-webkit-outer-spin-button,
+        input[type=number].no-spinner::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type=number].no-spinner {
+          -moz-appearance: textfield;
+        }
+      `}</style>
+ 
       <h1>{tournament.name}</h1>
-
-      {/*Bracket Logic */}
+ 
+      {/* Bracket Logic */}
       <div
         style={{
           display: "flex",
@@ -252,14 +262,8 @@ const submitSeeds = async () => {
                 minWidth: 200,
               }}
             >
-              <h2
-                style={{
-                  textAlign: "center",
-                }}
-              >
-                Round {round}
-              </h2>
-
+              <h2 style={{ textAlign: "center" }}>Round {round}</h2>
+ 
               {grouped[round].map((match) => (
                 <button
                   key={match.id}
@@ -284,57 +288,74 @@ const submitSeeds = async () => {
                   <div>
                     {match.player1_username ?? "TBD"} vs {match.player2_username ?? "TBD"}
                   </div>
-                  <div> {match.status}</div>
+                  <div>{match.status}</div>
                 </button>
               ))}
             </div>
           ))}
       </div>
-
+ 
+      {/* Set Seeds */}
       {tournament?.status === "open" && (
-  <div style={{ marginTop: 30 }}>
-    <h2>Set Seeds</h2>
-
-    <table style={{ width: "100%", borderCollapse: "collapse" }}>
-      <thead>
-        <tr>
-          <th style={tableStyles.th}>Player</th>
-          <th style={tableStyles.th}>Seed</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        {players.map((p) => (
-          <tr key={p.id}>
-            <td style={tableStyles.td}>{p.username}</td>
-            <td style={tableStyles.td}>
-              <input
-                type="number"
-                value={editedSeeds[p.id] ?? ""}
-                onChange={(e) => handleSeedChange(p.id, e.target.valueAsNumber)}
-                style={S.input}
-                min="1"
-              />
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-
-    <button style={S.primary} onClick={submitSeeds}>
-      Save Seeds
-    </button>
-  </div>
-)}
-
-      {/*Start tournament*/}
+        <div style={{ marginTop: 0, marginLeft: 15, display: "inline-block" }}>
+          {/* Collapsible header */}
+          <button
+            onClick={() => setSeedsCollapsed((prev) => !prev)}
+            style={{
+              ...S.collapseToggle,
+            }}
+          >
+            Set Seeds
+          </button>
+ 
+          {!seedsCollapsed && (
+            <div style={S.seedBox}>
+              <table style={{ borderCollapse: "collapse", width: "fit-content" }}>
+                <thead>
+                  <tr>
+                    <th style={tableStyles.th}>Player</th>
+                    <th style={tableStyles.th}>Seed</th>
+                  </tr>
+                </thead>
+ 
+                <tbody>
+                  {players.map((p) => (
+                    <tr key={p.id}>
+                      <td style={tableStyles.td}>{p.username}</td>
+                      <td style={tableStyles.td}>
+                        <input
+                          type="number"
+                          className="no-spinner"
+                          value={editedSeeds[p.id] ?? ""}
+                          onChange={(e) => handleSeedChange(p.id, e.target.valueAsNumber)}
+                          style={S.input}
+                          min="1"
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+ 
+              <button style={{ ...S.primary, marginTop: 12 }} onClick={submitSeeds}>
+                Save Seeds
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+ 
+      {/* Start tournament */}
       {tournament?.status === "open" && (
-        <button style={S.primary} onClick={startTournament}>
-          Start Tournament
-        </button>
+        <div style={{ marginTop: 10, marginLeft: 15}}>
+          <button style={S.primary} onClick={startTournament}>
+            Start Tournament
+          </button>
+        </div>
       )}
       {tournament?.status !== "open" && <p>Tournament Started</p>}
-
+ 
+      {/* Match score modal */}
       {selectedMatch && (
         <div
           style={{
@@ -361,12 +382,12 @@ const submitSeeds = async () => {
             onClick={(e) => e.stopPropagation()}
           >
             <h2>Match</h2>
-
+ 
             <p>
               {selectedMatch.player1_username ?? "TBD"} vs{" "}
               {selectedMatch.player2_username ?? "TBD"}
             </p>
-
+ 
             <input
               display="flex"
               style={{ width: "100%", padding: "10px", borderRadius: 6 }}
@@ -375,8 +396,8 @@ const submitSeeds = async () => {
               value={player1_score}
               onChange={(e) => setPlayer_1Score(e.target.value)}
               className="text-entry"
-            ></input>
-
+            />
+ 
             <input
               display="flex"
               style={{ width: "100%", padding: "10px", borderRadius: 6 }}
@@ -385,10 +406,10 @@ const submitSeeds = async () => {
               value={player2_score}
               onChange={(e) => setPlayer_2Score(e.target.value)}
               className="text-entry"
-            ></input>
-
+            />
+ 
             <p>{selectedMatch.status}</p>
-
+ 
             <button onClick={() => setSelectedMatch(null)}>Close</button>
             <button
               onClick={() => handleSubmitScores()}
@@ -406,19 +427,21 @@ const submitSeeds = async () => {
     </div>
   );
 }
-
+ 
 const tableStyles = {
   th: {
     textAlign: "left",
-    borderBottom: "2px solid #e5e7eb",
-    padding: "8px",
+    borderBottom: "1px solid #000000",
+    padding: "6px 12px 6px 6px",
+    whiteSpace: "nowrap",
   },
   td: {
-    padding: "8px",
-    borderBottom: "1px solid #e5e7eb",
+    padding: "6px 12px 6px 6px",
+    borderBottom: "1px solid #000000",
+    whiteSpace: "wrap",
   },
 };
-
+ 
 const S = {
   primary: {
     background: "#4a429f",
@@ -428,35 +451,41 @@ const S = {
     borderRadius: 7,
     cursor: "pointer",
     fontWeight: 700,
-    fontSize: 13,
+    fontSize: 15,
     fontFamily: "'Poppins', sans-serif",
   },
-  ghost: {
-    background: "none",
-    border: "1px solid #d1d5db",
-    color: "#6b7280",
-    padding: "8px 14px",
+  collapseToggle: {
+    background: "#4a429f",
+    color: "#fff",
+    border: "none",
+    padding: "9px 18px",
     borderRadius: 7,
     cursor: "pointer",
-    fontSize: 13,
+    fontWeight: 700,
+    fontSize: 15,
     fontFamily: "'Poppins', sans-serif",
+    marginBottom: 8,
+    display: "block", // key: forces button onto its own line above the seedBox
   },
+  seedBox: {
+    border: "1px solid #000000",
+    borderRadius: 10,
+    padding: "16px 20px",
+    background: "#fafafa",
+    display: "inline-block",
+  },
+
+
   input: {
     background: "#fff",
     border: "1px solid #d1d5db",
-    color: "#1f2937",
+    color: "#000000",
     padding: "10px 12px",
-    borderRadius: 7,
+    borderRadius: 5,
     fontSize: 13,
     outline: "none",
-    width: "100%",
+    width: "50px",
     fontFamily: "'Poppins', sans-serif",
   },
-  label: {
-    fontSize: 11,
-    color: "#6b7280",
-    fontWeight: 600,
-    textTransform: "uppercase",
-    letterSpacing: "0.5px",
-  },
 };
+ 
