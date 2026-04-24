@@ -8,34 +8,44 @@ export default function TournamentPage() {
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [player1_score, setPlayer_1Score] = useState("");
   const [player2_score, setPlayer_2Score] = useState("");
+  const [players, setPlayers] = useState([]);
+  const [editedSeeds, setEditedSeeds] = useState({});
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
 
-    fetch(`http://localhost:8080/tournaments/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.json())
-      .then(setTournament);
+  
+useEffect(() => {
+  
+  const token = localStorage.getItem("token");
 
-    fetch(`http://localhost:8080/tournaments/getBracket/${id}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then(async (r) => {
-        const data = await r.json();
+  fetch(`http://localhost:8080/tournaments/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then((r) => r.json())
+    .then(setTournament);
 
-        if (!r.ok) {
-          console.log("Bracket error:", data.error);
-          return [];
-        }
 
-        return data;
-      })
-      .then((data) => setBracket(Array.isArray(data) ? data : []));
-  }, [id]);
+ fetch(`http://localhost:8080/tournaments/${id}/players`, {
+  headers: { Authorization: `Bearer ${token}` },
+})
+  .then((r) => {
+    console.log("Players status:", r.status);  
+    if (!r.ok) return [];
+    return r.json();
+  })
+  .then((data) => {
+    console.log("Players data:", data); 
+    if (!Array.isArray(data)) return;
+    setPlayers(data);
+    const seedMap = {};
+    data.forEach((p) => {
+      seedMap[p.id] = p.seed ?? "";
+    });
+    setEditedSeeds(seedMap);
+  })
+  .catch((err) => console.error("Players fetch failed:", err));
+}, [id]);
+
+
 
   const fetchBracket = async () => {
     const token = localStorage.getItem("token");
@@ -54,6 +64,8 @@ export default function TournamentPage() {
 
     setBracket(Array.isArray(data) ? data : []);
   };
+
+
 
   const startTournament = async () => {
     const token = localStorage.getItem("token");
@@ -98,10 +110,66 @@ export default function TournamentPage() {
       status: "started",
     }));
 
-    alert("Succesfully Started Tournament");
     fetchBracket();
   };
 
+const handleSeedChange = (playerId, value) => {
+  setEditedSeeds((prev) => ({
+    ...prev,
+    [playerId]: value,
+  }));
+};
+
+const submitSeeds = async () => {
+  const token = localStorage.getItem("token");
+
+  const seeds = players
+    .map((p) => {
+      const seedValue = Number(editedSeeds[p.id]);
+
+      if (!seedValue || Number.isNaN(seedValue)) return null;
+
+      return {
+        player_id: p.id,
+        seed: seedValue,
+      };
+    })
+    .filter(Boolean);
+
+  console.log("SENDING SEEDS:", seeds);
+
+  if (seeds.length === 0) {
+    alert("No valid seeds entered");
+    return;
+  }
+
+  const res = await fetch(
+    `http://localhost:8080/tournaments/setSeedBulk`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        tournament_id: id,
+        seeds,
+      }),
+    }
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    console.log(data);
+    alert(data.error || "Failed to set seeds");
+    return;
+  }
+
+  alert("Seeds updated!");
+};
+
+//asdasdasd
   const handleSubmitScores = async () => {
     const token = localStorage.getItem("token");
 
@@ -132,7 +200,6 @@ export default function TournamentPage() {
     }
 
     setSelectedMatch(null);
-    alert("Succesfully submitted scores");
     fetchBracket();
   };
 
@@ -210,6 +277,42 @@ export default function TournamentPage() {
             </div>
           ))}
       </div>
+
+      {tournament?.status === "open" && (
+  <div style={{ marginTop: 30 }}>
+    <h2>Set Seeds</h2>
+
+    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <thead>
+        <tr>
+          <th style={tableStyles.th}>Player</th>
+          <th style={tableStyles.th}>Seed</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {players.map((p) => (
+          <tr key={p.id}>
+            <td style={tableStyles.td}>{p.username}</td>
+            <td style={tableStyles.td}>
+              <input
+                type="number"
+                value={editedSeeds[p.id] ?? ""}
+                onChange={(e) => handleSeedChange(p.id, e.target.valueAsNumber)}
+                style={S.input}
+                min="1"
+              />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    <button style={S.primary} onClick={submitSeeds}>
+      Save Seeds
+    </button>
+  </div>
+)}
 
       {/*Start tournament*/}
       {tournament?.status === "open" && (
@@ -290,6 +393,18 @@ export default function TournamentPage() {
     </div>
   );
 }
+
+const tableStyles = {
+  th: {
+    textAlign: "left",
+    borderBottom: "2px solid #e5e7eb",
+    padding: "8px",
+  },
+  td: {
+    padding: "8px",
+    borderBottom: "1px solid #e5e7eb",
+  },
+};
 
 const S = {
   primary: {

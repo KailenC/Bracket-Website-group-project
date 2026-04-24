@@ -250,6 +250,50 @@ const getBracket = async (tournament_id) => {
   );
   return result.rows;
 };
+const setSeedsBulk = async (tournament_id, seeds) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    for (const { player_id, seed } of seeds) {
+      const res = await client.query(
+        `
+        UPDATE tournament_players
+        SET seed = $1
+        WHERE tournament_id = $2 AND user_id = $3
+        RETURNING *
+        `,
+        [seed, tournament_id, player_id]
+      );
+
+      if (res.rowCount === 0) {
+        throw new Error(`Player ${player_id} not in tournament`);
+      }
+    }
+
+    await client.query("COMMIT");
+    return { success: true };
+
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
+const getPlayers = async (tournament_id) => {
+  const result = await pool.query(
+    `SELECT u.id, u.username, tp.seed
+     FROM tournament_players tp
+     JOIN users u ON u.id = tp.user_id
+     WHERE tp.tournament_id = $1
+     ORDER BY tp.seed ASC NULLS LAST`,
+    [tournament_id]
+  );
+  return result.rows;
+};
 
 module.exports = {
   getTournament,
@@ -263,4 +307,6 @@ module.exports = {
   fillRemainingSeeds,
   getBracket,
   getPublicTournaments,
+  setSeedsBulk,
+  getPlayers
 };

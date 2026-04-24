@@ -7,7 +7,7 @@ function Main() {
   return (
     <div>
       <div className="center-container">
-        <h1>Welcome to Bracket Land!!</h1>
+        <h1>Welcome to Bracket Builder!</h1>
         <h2>Join the community and compete!</h2>
 
         {(!isLoggedIn) && (
@@ -37,23 +37,11 @@ function Main() {
             <p>UNO</p>
             <button className="btn"> Join! Placeholder Route</button>
           </div>
-
-          <div className="tournament-box">
-            <h4>Example Tournament 2</h4>
-            <p>Chess</p>
-            <button className="btn"> Join! Placeholder Route</button>
-          </div>
-
-          <div className="tournament-box">
-            <h4>Example Tournament 3</h4>
-            <p>Mario Kart</p>
-            <button className="btn"> Join! Placeholder Route</button>
-          </div>
         </div>
       </div>
       <br></br>
       <div className="footer">
-        <p>© 2024 Bracket Land. All rights reserved.</p>
+        <p>© 2026 Bracket Builder. All rights reserved.</p>
       </div>
     </div>
   );

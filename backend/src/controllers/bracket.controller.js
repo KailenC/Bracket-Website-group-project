@@ -64,7 +64,7 @@ const enterResultsSeries = async (req, res) => {
     });
 
     if (!updatedMatch) {
-      return res.status(404).json({ error: "Match not found" });
+      return res.status(404).json({ error: "Match not found, previous rounds must be completed first" });
     }
 
     await advanceWinner({ tournament_id, completedMatch: updatedMatch });

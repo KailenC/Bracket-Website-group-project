@@ -143,21 +143,6 @@ export default function UserProfile() {
               <p style={{ margin: "3px 0 0", fontSize: 12, color: "#9ca3af" }}>
                 {profile.email}
               </p>
-              <p style={{ margin: "3px 0 0", fontSize: 12, color: "#9ca3af" }}>
-                Member since {profile.joinDate}
-              </p>
-              {profile.favoriteTeam && (
-                <p
-                  style={{
-                    margin: "6px 0 0",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: "#1f2937",
-                  }}
-                >
-                  ⭐ {profile.favoriteTeam}
-                </p>
-              )}
             </div>
           </div>
 
@@ -171,7 +156,7 @@ export default function UserProfile() {
             }}
           >
             <div style={S.pill("#f3f4f6", "#374151")}>
-              {total} brackets total
+              {total} Brackets Total
             </div>
             <div style={S.pill("#f0fdf4", "#15803d")}>
               {completed} Completed

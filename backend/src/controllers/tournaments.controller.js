@@ -92,24 +92,33 @@ const startTournament = async (req, res) => {
 };
 
 const setSeed = async (req, res) => {
-  const { tournament_id, seed } = req.body;
+  const { tournament_id, player_id, seed } = req.body;
   const user_id = req.user.id;
 
   const tournament = await tournamentModel.getTournament(tournament_id);
   if (!tournament) {
     return res.status(404).json({ error: "Tournament not found" });
   }
+
+  if (tournament.host_id !== user_id) {
+    return res.status(403).json({ error: "Only the host can set seeds" });
+  }
+
   if (tournament.status !== "open") {
     return res
       .status(400)
       .json({ error: "Cannot change seeds after tournament has started" });
   }
 
+    if (!player_id || seed == null|| seed < 1 || seed > tournament.max_players) {
+    return res.status(400).json({ error: "player_id and seed are required or are out of bounds" });
+  }
+
   try {
     const updated = await tournamentModel.setSeed({
       tournament_id: tournament_id,
-      userId: user_id,
-      seed,
+      userId: player_id,
+      seed: seed,
     });
     if (!updated) {
       return res
@@ -169,6 +178,76 @@ const getBrackets = async (req, res) => {
   }
 };
 
+const setSeedBulk = async (req, res) => {
+  const { tournament_id, seeds } = req.body;
+  const user_id = req.user.id;
+
+  if (!Array.isArray(seeds) || seeds.length === 0) {
+    return res.status(400).json({ error: "Seeds array is required" });
+  }
+
+  const tournament = await tournamentModel.getTournament(tournament_id);
+  if (!tournament) {
+    return res.status(404).json({ error: "Tournament not found" });
+  }
+
+  // Host check
+  if (tournament.host_id !== user_id) {
+    return res.status(403).json({ error: "Only the host can set seeds" });
+  }
+
+  if (tournament.status !== "open") {
+    return res.status(400).json({
+      error: "Cannot change seeds after tournament has started",
+    });
+  }
+
+  const seenSeeds = new Set();
+
+  for (const entry of seeds) {
+    const { player_id, seed } = entry;
+
+    if (!player_id || seed == null) {
+      return res.status(400).json({ error: "Invalid seed entry" });
+    }
+
+    if (seed < 1 || seed > tournament.max_players) {
+      return res.status(400).json({
+        error: `Seed ${seed} is out of bounds`,
+      });
+    }
+
+    if (seenSeeds.has(seed)) {
+      return res.status(400).json({
+        error: `Duplicate seed detected: ${seed}`,
+      });
+    }
+
+    seenSeeds.add(seed);
+  }
+
+  try {
+    const result = await tournamentModel.setSeedsBulk(
+      tournament_id,
+      seeds
+    );
+
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+const getPlayers = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const players = await tournamentModel.getPlayers(id);
+    res.json(players);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   getTournament,
   createTournament,
@@ -179,6 +258,8 @@ module.exports = {
   setSeed,
   fillSeeds,
   getBrackets,
+  setSeedBulk,
+  getPlayers
 };
 
 //need to add a set seed method for frontend

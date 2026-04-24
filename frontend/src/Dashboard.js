@@ -116,32 +116,10 @@ function BracketCard({ bracket, onOpen }) {
         {bracket.name}
       </h3>
       <p style={{ margin: 0, fontSize: 11, color: "#9ca3af" }}>
-        {bracket.teams} teams
+        {bracket.teams} Players
       </p>
 
       {/* Progress bar */}
-      <div>
-        <div
-          style={{
-            height: 4,
-            background: "#f3f4f6",
-            borderRadius: 2,
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              width: bracket.progress + "%",
-              height: "100%",
-              background: isLive ? c.text : "#16a34a",
-              borderRadius: 2,
-            }}
-          />
-        </div>
-        <p style={{ margin: "4px 0 0", fontSize: 10, color: "#9ca3af" }}>
-          {bracket.progress}% complete
-        </p>
-      </div>
 
       <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: "#9ca3af" }}>
         Open bracket →
@@ -358,7 +336,7 @@ export default function Dashboard() {
           zIndex: 100,
         }}
       >
-         <Link to="/tournaments" className="btn" style={{ padding: "8px 16px", borderRadius: 5, fontSize: 13, textDecoration: "none" }}>
+         <Link to="/tournaments" className="btn" style={{ padding: "8px 16px", borderRadius: 5, fontSize: 15, textDecoration: "none" }}>
             Browse Tournaments
             </Link>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
