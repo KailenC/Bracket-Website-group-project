@@ -1,53 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
-//Some Fake data to shows until the backend is ready ────────────────────────────
-const MOCK_PROFILE = {
-  username: "SportsKing",
-  email: "sportsking@email.com",
-  favoriteTeam: "Kansas City Chiefs",
-  joinDate: "2024-11-01",
-};
-
-const MOCK_BRACKETS = [
-  {
-    id: 1,
-    name: "NFL Playoffs 2025",
-    sport: "NFL",
-    status: "active",
-    createdAt: "2025-01-10",
-  },
-  {
-    id: 2,
-    name: "March Madness",
-    sport: "NCAA",
-    status: "active",
-    createdAt: "2025-03-14",
-  },
-  {
-    id: 3,
-    name: "NBA Finals Run",
-    sport: "NBA",
-    status: "completed",
-    createdAt: "2025-04-01",
-  },
-  {
-    id: 4,
-    name: "World Cup Group A",
-    sport: "FIFA",
-    status: "completed",
-    createdAt: "2024-11-20",
-  },
-];
-
-const SPORT_COLORS = {
-  NFL: { bg: "#fff7ed", text: "#c2410c", border: "#fed7aa" },
-  NBA: { bg: "#eff6ff", text: "#1d4ed8", border: "#bfdbfe" },
-  NCAA: { bg: "#f0fdf4", text: "#15803d", border: "#bbf7d0" },
-  FIFA: { bg: "#fefce8", text: "#a16207", border: "#fde68a" },
-  NHL: { bg: "#faf5ff", text: "#7e22ce", border: "#e9d5ff" },
-  MLB: { bg: "#fdf2f8", text: "#be185d", border: "#fbcfe8" },
-};
 
 // Main page for user to view their profile info and bracket history
 export default function UserProfile() {
@@ -82,18 +35,13 @@ export default function UserProfile() {
         setProfile(p);
         setBrackets(b);
       })
-      .catch(() => {
-        // Use fake data if backend not ready
-        setProfile(MOCK_PROFILE);
-        setBrackets(MOCK_BRACKETS);
-      })
       .finally(() => setLoading(false));
   }, [navigate]);
 
   const initials = profile ? profile.username.slice(0, 2).toUpperCase() : "?";
   const total = brackets.length;
-  const completed = brackets.filter((b) => b.status === "completed").length;
-  const active = brackets.filter((b) => b.status === "active").length;
+  const completed = brackets.filter((b) => b.status === "Completed").length;
+  const active = brackets.filter((b) => b.status === "In Progress").length;
 
   if (loading)
     return (
@@ -142,40 +90,8 @@ export default function UserProfile() {
             textDecoration: "none",
           }}
         >
-          🏆 BracketMaker
+          Bracket Builder
         </Link>
-        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-          {/*
-          <Link
-            to="/dashboard"
-            className="btn"
-            style={{
-              padding: "8px 16px",
-              borderRadius: 5,
-              fontSize: 13,
-              textDecoration: "none",
-            }}
-          >
-            Dashboard
-          </Link>
-          <Link
-            to="/profile"
-            className="btn"
-            style={{
-              background: "#4a429f",
-              color: "#fff",
-              padding: "8px 16px",
-              borderRadius: 5,
-              fontSize: 13,
-              fontWeight: 600,
-              textDecoration: "none",
-            }}
-          >
-            My Profile
-          </Link>
-          */}
-
-        </div>
       </div>
 
       <main
@@ -258,9 +174,9 @@ export default function UserProfile() {
               {total} brackets total
             </div>
             <div style={S.pill("#f0fdf4", "#15803d")}>
-              {completed} completed
+              {completed} Completed
             </div>
-            <div style={S.pill("#fff7ed", "#c2410c")}>{active} active</div>
+            <div style={S.pill("#fff7ed", "#c2410c")}>{active} In Progress</div>
           </div>
         </div>
 
@@ -288,11 +204,6 @@ export default function UserProfile() {
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
               {brackets.map((b, i) => {
-                const c = SPORT_COLORS[b.sport] || {
-                  bg: "#f9fafb",
-                  text: "#374151",
-                  border: "#e5e7eb",
-                };
                 const isLive = b.status !== "completed";
                 const isLast = i === brackets.length - 1;
 
@@ -317,20 +228,6 @@ export default function UserProfile() {
                         minWidth: 0,
                       }}
                     >
-                      <span
-                        style={{
-                          background: c.bg,
-                          color: c.text,
-                          border: `1px solid ${c.border}`,
-                          padding: "2px 8px",
-                          borderRadius: 20,
-                          fontSize: 10,
-                          fontWeight: 700,
-                          flexShrink: 0,
-                        }}
-                      >
-                        {b.sport}
-                      </span>
                       <span
                         style={{
                           fontSize: 13,
@@ -363,7 +260,7 @@ export default function UserProfile() {
                           fontSize: 10,
                         }}
                       >
-                        {isLive ? "● Live" : "✓ Done"}
+                        {isLive ? "In Progress" : "Completed"}
                       </span>
                       <span style={{ fontSize: 11, color: "#9ca3af" }}>
                         {b.createdAt}

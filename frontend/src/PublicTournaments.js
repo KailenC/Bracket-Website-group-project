@@ -27,7 +27,7 @@ export default function PublicTournaments() {
     })
       .then(r => { if (!r.ok) throw new Error(); return r.json(); })
       .then(data => setTournaments(data))
-      .catch(() => setMessage("Could not load tournaments. Make sure backend is running."))
+      .catch(() => setMessage("Could not load tournaments"))
       .finally(() => setLoading(false));
 
   }, [navigate]);
@@ -74,34 +74,15 @@ export default function PublicTournaments() {
 // styling
   return (
     <div style={{ minHeight: "100vh", background: "#fff", fontFamily: "'Poppins', sans-serif" }}>
-
-      {/* NAVBAR */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "aliceblue", padding: "16px 20px", borderBottom: "1px solid #e5e7eb", position: "sticky", top: 0, zIndex: 100 }}>
-        <Link to="/" style={{ fontWeight: 700, fontSize: 16, color: "#1f2937", textDecoration: "none" }}>
-          🏆 BracketMaker
-        </Link>
-        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-          <Link to="/dashboard" className="btn" style={{ padding: "8px 16px", borderRadius: 5, fontSize: 13, textDecoration: "none" }}>
-            Dashboard
-          </Link>
-          <Link to="/profile" className="btn" style={{ padding: "8px 16px", borderRadius: 5, fontSize: 13, textDecoration: "none" }}>
-            My Profile
-          </Link>
-        </div>
-      </div>
-
       <main style={{ maxWidth: 700, margin: "0 auto", padding: "28px 20px" }}>
 
         {/* HEADER */}
         <div style={{ marginBottom: 24 }}>
-          <p style={{ margin: 0, fontSize: 11, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "1px" }}>
-            Browse
-          </p>
-          <h1 style={{ margin: "4px 0 0", fontSize: 28, fontWeight: 900, color: "#1f2937" }}>
+          <h1 style={{ margin: "4px 0 0", fontSize: 40, fontWeight: 900, color: "#000000" }}>
             Open Tournaments
           </h1>
-          <p style={{ margin: "4px 0 0", fontSize: 13, color: "#9ca3af" }}>
-            Join a tournament and compete!
+          <p style={{ margin: "4px 0 0", fontSize: 20, color: "#777777" }}>
+            Explore Open Tournamnets Here:
           </p>
         </div>
 
@@ -134,13 +115,12 @@ export default function PublicTournaments() {
         {/* EMPTY STATE */}
         {!loading && tournaments.length === 0 && !message && (
           <div style={{ textAlign: "center", padding: "48px 0", color: "#9ca3af" }}>
-            <p style={{ fontSize: 40, margin: 0 }}>🏟️</p>
-            <p style={{ fontSize: 15, fontWeight: 600, color: "#1f2937", margin: "12px 0 4px" }}>
+            <p style={{ fontSize: 25, fontWeight: 600, color: "#000000", margin: "12px 0 4px" }}>
               No open tournaments right now
             </p>
-            <p style={{ fontSize: 13, margin: 0 }}>
+            <p style={{ fontSize: 15, margin: 0 }}>
               Create one from your{" "}
-              <Link to="/dashboard" style={{ color: "#4a429f", fontWeight: 600 }}>
+              <Link to="/dashboard" style={{ color: "#00a2ff", fontWeight: 600 }}>
                 Dashboard
               </Link>
             </p>

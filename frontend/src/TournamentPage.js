@@ -57,6 +57,20 @@ export default function TournamentPage() {
 
   const startTournament = async () => {
     const token = localStorage.getItem("token");
+// eslint-disable-next-line
+    const fillRes = await fetch(
+      `http://localhost:8080/tournaments/fillSeeds`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          tournament_id: id,
+        }),
+      }
+    );
 
     const res = await fetch(
       `http://localhost:8080/tournaments/startTournament`,

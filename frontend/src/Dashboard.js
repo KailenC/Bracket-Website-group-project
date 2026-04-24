@@ -1,41 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
-// fake data to show
-const MOCK_BRACKETS = [
-  {
-    id: 1,
-    name: "NFL Playoffs 2025",
-    sport: "NFL",
-    teams: 8,
-    status: "active",
-    progress: 60,
-  },
-  {
-    id: 2,
-    name: "March Madness",
-    sport: "NCAA",
-    teams: 16,
-    status: "active",
-    progress: 35,
-  },
-  {
-    id: 3,
-    name: "NBA Finals Run",
-    sport: "NBA",
-    teams: 4,
-    status: "completed",
-    progress: 100,
-  },
-  {
-    id: 4,
-    name: "World Cup Group A",
-    sport: "FIFA",
-    teams: 6,
-    status: "active",
-    progress: 50,
-  },
-];
 
 const SPORT_COLORS = {
   NFL: { bg: "#fff7ed", text: "#c2410c", border: "#fed7aa" },
@@ -141,7 +106,7 @@ function BracketCard({ bracket, onOpen }) {
             fontSize: 10,
           }}
         >
-          {isLive ? "● Live" : "✓ Done"}
+          {isLive ? "In Progress" : "Completed"}
         </span>
       </div>
 
@@ -220,7 +185,7 @@ function CreateModal({ onClose, onCreate }) {
         <h2
           style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#1f2937" }}
         >
-          New Bracket
+          Create New Bracket
         </h2>
 
         {/* name */}
@@ -228,7 +193,7 @@ function CreateModal({ onClose, onCreate }) {
           <label style={S.label}>Bracket Name</label>
           <input
             style={S.input}
-            placeholder="e.g. NFL Playoffs 2025"
+            placeholder="Desired Name Here"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
@@ -236,10 +201,10 @@ function CreateModal({ onClose, onCreate }) {
 
         {/* sport */}
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <label style={S.label}>Sport Type</label>
+          <label style={S.label}>Bracket Type</label>
           <input
             style={S.input}
-            placeholder="e.g. NFL, NBA, NCAA"
+            placeholder="e.g. Single Elim, Double Elim, etc"
             value={sport}
             onChange={(e) => setSport(e.target.value)}
           />
@@ -319,7 +284,6 @@ export default function Dashboard() {
           })),
         ),
       )
-      .catch(() => setBrackets(MOCK_BRACKETS)) // use fake data if backend not ready
       .finally(() => setLoading(false));
   }, [navigate]);
 
@@ -372,7 +336,6 @@ export default function Dashboard() {
 
   const active = brackets.filter((b) => b.status === "active").length;
   const completed = brackets.filter((b) => b.status === "completed").length;
-  const teams = brackets.reduce((s, b) => s + (b.teams || 0), 0);
 
   return (
     <div
@@ -395,50 +358,10 @@ export default function Dashboard() {
           zIndex: 100,
         }}
       >
-        <Link
-          to="/"
-          style={{
-            fontWeight: 700,
-            fontSize: 16,
-            color: "#1f2937",
-            textDecoration: "none",
-          }}
-        >
-          <Link to="/tournaments" className="btn" style={{ padding: "8px 16px", borderRadius: 5, fontSize: 13, textDecoration: "none" }}>
+         <Link to="/tournaments" className="btn" style={{ padding: "8px 16px", borderRadius: 5, fontSize: 13, textDecoration: "none" }}>
             Browse Tournaments
             </Link>
-          🏆 BracketMaker
-        </Link>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-          {/*
-          <Link
-            to="/dashboard"
-            className="btn"
-            style={{
-              background: "#4a429f",
-              color: "#fff",
-              padding: "8px 16px",
-              borderRadius: 5,
-              fontSize: 13,
-              fontWeight: 600,
-              textDecoration: "none",
-            }}
-          >
-            Dashboard
-          </Link>
-          <Link
-            to="/profile"
-            className="btn"
-            style={{
-              padding: "8px 16px",
-              borderRadius: 5,
-              fontSize: 13,
-              textDecoration: "none",
-            }}
-          >
-            My Profile
-          </Link>
-*/}
         </div>
       </div>
 
@@ -490,13 +413,12 @@ export default function Dashboard() {
           }}
         >
           <StatCard
-            label="Total Brackets"
+            label="Brackets Entered"
             value={brackets.length}
             accent="#4a429f"
           />
-          <StatCard label="Active" value={active} accent="#ea580c" />
-          <StatCard label="Completed" value={completed} accent="#16a34a" />
-          <StatCard label="Teams Tracked" value={teams} accent="#db2777" />
+          <StatCard label="Brackets In Progress" value={active} accent="#ea580c" />
+          <StatCard label="Brackets Completed" value={completed} accent="#16a34a" />
         </div>
 
         {/* Brackets */}
@@ -519,7 +441,6 @@ export default function Dashboard() {
           <div
             style={{ textAlign: "center", padding: "48px 0", color: "#9ca3af" }}
           >
-            <p style={{ fontSize: 40 }}>🏟️</p>
             <p>No brackets yet. Hit "+ New Bracket" to start!</p>
           </div>
         ) : (
