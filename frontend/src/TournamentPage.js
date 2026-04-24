@@ -23,7 +23,20 @@ useEffect(() => {
     .then((r) => r.json())
     .then(setTournament);
 
+ fetch(`http://localhost:8080/tournaments/getBracket/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(async (r) => {
+      const data = await r.json();
+      if (!r.ok) return [];
+      return data;
+    })
+    .then((data) => setBracket(Array.isArray(data) ? data : []));
 
+  fetch(`http://localhost:8080/tournaments/${id}/players`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  
  fetch(`http://localhost:8080/tournaments/${id}/players`, {
   headers: { Authorization: `Bearer ${token}` },
 })
