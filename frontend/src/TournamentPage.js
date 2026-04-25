@@ -156,7 +156,11 @@ export default function TournamentPage() {
         tournament_id: id,
         seeds,
       }),
-    });
+    }
+  );
+  if (res.ok) {
+  alert("Seeds set successfully!");
+}
 
     const data = await res.json();
 

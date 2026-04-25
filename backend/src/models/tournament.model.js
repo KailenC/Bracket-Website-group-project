@@ -68,14 +68,30 @@ const createBracket = async (tournament_id) => {
   const bracketSize = Math.pow(2, Math.ceil(Math.log2(playerCount)));
   const totalRounds = Math.log2(bracketSize);
 
-  // Build a bracketSize-length array where index = seed-1, null = bye
-  // This means byes are naturally at the END of the seed list
-  const slots = Array(bracketSize).fill(null);
-  for (let i = 0; i < players.length; i++) {
-    slots[i] = players[i].user_id; // seed 1 → index 0, seed 2 → index 1, etc.
+  // Build seed → userId map (seed is 1-based)
+  const seedMap = {};
+  for (const p of players) {
+    seedMap[p.seed] = p.user_id;
   }
-  // slots = [s1, s2, s3, s4, s5, s6, null, null]
-  // Mirroring now works: s1 vs slots[7]=null(bye), s2 vs slots[6]=null(bye), s3 vs s6, s4 vs s5 ✅
+
+  // Standard bracket position algorithm:
+  // Recursively splits seeds so 1 and 2 are always in opposite halves,
+  // 3 and 4 are separated, etc.
+  function buildPositions(size) {
+    if (size === 2) return [1, 2];
+    const prev = buildPositions(size / 2);
+    const result = [];
+    for (const pos of prev) {
+      result.push(pos);
+      result.push(size + 1 - pos); // mirror opponent
+    }
+    return result;
+  }
+
+  // e.g. for size 8: [1, 8, 4, 5, 2, 7, 3, 6]
+  // pairs become: 1v8, 4v5, 2v7, 3v6 — seeds 1 and 2 in opposite halves
+  const positions = buildPositions(bracketSize);
+  const slots = positions.map((seed) => seedMap[seed] ?? null);
 
   const client = await pool.connect();
   try {
@@ -83,16 +99,15 @@ const createBracket = async (tournament_id) => {
 
     const round1Matches = [];
     for (let i = 0; i < bracketSize / 2; i++) {
-      const player1Id = slots[i];
-      const player2Id = slots[bracketSize - 1 - i];
+      const player1Id = slots[i * 2];
+      const player2Id = slots[i * 2 + 1];
       const matchNumber = i + 1;
 
-      // Determine status
       let status;
       if (!player1Id && !player2Id) {
-        status = "bye"; // both empty, skip entirely
-      } else if (!player2Id || !player1Id) {
-        status = "bye"; // one player gets a walkover
+        status = "bye";
+      } else if (!player1Id || !player2Id) {
+        status = "bye";
       } else {
         status = "pending";
       }
@@ -107,7 +122,7 @@ const createBracket = async (tournament_id) => {
       round1Matches.push(result.rows[0]);
     }
 
-    // Round 2+ shells (unchanged)
+    // Round 2+ shells
     for (let round = 2; round <= totalRounds; round++) {
       const matchesInRound = bracketSize / Math.pow(2, round);
       for (let matchNumber = 1; matchNumber <= matchesInRound; matchNumber++) {
@@ -120,11 +135,11 @@ const createBracket = async (tournament_id) => {
       }
     }
 
-    // Auto-advance byes (unchanged)
+    // Auto-advance byes
     for (const match of round1Matches) {
       if (match.status === "bye") {
         const winnerId = match.player1_id ?? match.player2_id;
-        if (!winnerId) continue; // both null, truly empty slot — skip
+        if (!winnerId) continue;
         await client.query(
           `UPDATE matches SET winner_id = $1, status = 'complete' WHERE id = $2`,
           [winnerId, match.id],
