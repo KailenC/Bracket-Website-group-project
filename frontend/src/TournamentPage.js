@@ -276,16 +276,12 @@ export default function TournamentPage() {
                     textAlign: "center",
                   }}
                 >
-                  <div>
-                    {match.player1_id !== null
-                      ? "(" + match.player1_id + ") "
-                      : ""}
-                    {match.player1_username ?? "TBD"} vs{" "}
-                    {match.player2_id !== null
-                      ? " (" + match.player2_id + ") "
-                      : ""}
-                    {match.player2_username ?? "TBD"}
-                  </div>
+                    <div>
+                      {match.player1_seed != null ? `(${match.player1_seed}) ` : ""}
+                      {match.player1_username ?? "TBD"} vs{" "}
+                      {match.player2_seed != null ? `(${match.player2_seed}) ` : ""}
+                      {match.player2_username ?? "TBD"}
+                    </div>
                   <div>
                     {match.score1} - {match.score2}
                   </div>
