@@ -63,7 +63,7 @@ INSERT INTO users (first_name, last_name, username, email, password) VALUES
 ('Davyid', 'yLee', 'dlyee', 'dayvid.lee@example.com', '$2a$10$7QJ8zQZlZkz1QW5ZQJz7UeQxQ5z9Jrj0YFQyZp6G5rKQ8kzXkzXkG');
 
 INSERT INTO tournaments (name, host_id, status, type, max_players)
-VALUES ('Test Tournament', 1, 'open', 'single_elimination', 32);
+VALUES ('Test Tournament', 1, 'open', 'single_elimination', 8);
 
 INSERT INTO tournament_players (tournament_id, user_id, seed) VALUES
 (1, 1, 1),
@@ -73,8 +73,4 @@ INSERT INTO tournament_players (tournament_id, user_id, seed) VALUES
 (1, 5, 5),
 (1, 6, 6),
 (1, 7, 7),
-(1, 8, 8),
-(1, 9, 9),
-(1, 10, 10),
-(1, 11, 11),
-(1, 12, 12);
+(1, 8, 8);
