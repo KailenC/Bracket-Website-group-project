@@ -13,8 +13,14 @@ const authenticateToken = (req, res, next) => {
     return res.status(401).json({ message: "No token provided" });
   }
 
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    console.error("JWT_SECRET is not defined in environment");
+    return res.status(500).json({ error: "Server misconfiguration" });
+  }
+
   try {
-    const decoded = jwt.verify(token, process.env.jwt_SECRET);
+    const decoded = jwt.verify(token, secret);
     req.user = decoded;
     next();
   } catch (err) {

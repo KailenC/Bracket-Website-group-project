@@ -94,6 +94,8 @@ const getUserProfile = async (req, res) => {
       username: user.username,
       email: user.email,
       id: user.id,
+      joinDate: user.created_at,
+      favoriteTeam: user.favoriteTeam,
     });
   } catch (err) {
     res.status(500).json({ error: "Server error" });

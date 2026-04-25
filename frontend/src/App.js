@@ -11,6 +11,7 @@ import Main from "./Main";
 import Dashboard from "./Dashboard";
 import UserProfile from "./UserProfile";
 import TournamentPage from "./TournamentPage";
+import PublicTournaments from "./PublicTournaments";
 import "./App.css";
 
 function AppDefault() {
@@ -67,6 +68,7 @@ function AppDefault() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/tournament/:id" element={<TournamentPage />} />
+        <Route path= "/tournaments" element={<PublicTournaments/>}/>
       </Routes>
     </>
   );

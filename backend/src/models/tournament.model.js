@@ -24,7 +24,6 @@ const updateTournament = async (tournamentData) => {};
 const createTournament = async (tournamentData) => {
   const { tournament_name, host_id, tournament_type, max_players } =
     tournamentData;
-
   // default status
   const status = "open";
 
@@ -49,17 +48,16 @@ const joinTournament = async (tournamentData) => {
   return result.rows[0];
 };
 
+// UPDATED — also returns username by joining with users table
 const getSeededPlayers = async (tournament_id) => {
-  //console.log("tournament_id: ", tournament_id);
-
   const result = await pool.query(
-    `SELECT user_id, seed FROM tournament_players
-     WHERE tournament_id = $1
-     ORDER BY seed ASC`,
+    `SELECT tp.user_id, tp.seed, u.username
+     FROM tournament_players tp
+     JOIN users u ON tp.user_id = u.id
+     WHERE tp.tournament_id = $1
+     ORDER BY tp.seed ASC`,
     [tournament_id],
   );
-
-  //console.log("DB result: ", result.rows);
   return result.rows;
 };
 
@@ -252,6 +250,50 @@ const getBracket = async (tournament_id) => {
   );
   return result.rows;
 };
+const setSeedsBulk = async (tournament_id, seeds) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    for (const { player_id, seed } of seeds) {
+      const res = await client.query(
+        `
+        UPDATE tournament_players
+        SET seed = $1
+        WHERE tournament_id = $2 AND user_id = $3
+        RETURNING *
+        `,
+        [seed, tournament_id, player_id]
+      );
+
+      if (res.rowCount === 0) {
+        throw new Error(`Player ${player_id} not in tournament`);
+      }
+    }
+
+    await client.query("COMMIT");
+    return { success: true };
+
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
+const getPlayers = async (tournament_id) => {
+  const result = await pool.query(
+    `SELECT u.id, u.username, tp.seed
+     FROM tournament_players tp
+     JOIN users u ON u.id = tp.user_id
+     WHERE tp.tournament_id = $1
+     ORDER BY tp.seed ASC NULLS LAST`,
+    [tournament_id]
+  );
+  return result.rows;
+};
 
 module.exports = {
   getTournament,
@@ -265,4 +307,6 @@ module.exports = {
   fillRemainingSeeds,
   getBracket,
   getPublicTournaments,
+  setSeedsBulk,
+  getPlayers
 };

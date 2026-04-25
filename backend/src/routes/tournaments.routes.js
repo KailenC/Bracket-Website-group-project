@@ -6,6 +6,7 @@ const tournamentController = require("../controllers/tournaments.controller");
 
 // non protected routes
 router.get("/my", authenticateToken, tournamentController.getMyTournaments);
+router.get("/:id/players", authenticateToken, tournamentController.getPlayers);
 router.get("/getBracket/:id", tournamentController.getBrackets);
 router.get("/:id", tournamentController.getTournament);
 
@@ -20,10 +21,6 @@ router.post(
 router.post("/join", authenticateToken, tournamentController.joinTournament);
 router.post("/setSeed", authenticateToken, tournamentController.setSeed);
 router.post("/fillSeeds", authenticateToken, tournamentController.fillSeeds); //should always be called before a tournament is started
-router.post(
-  "/startTournament",
-  authenticateToken,
-  tournamentController.startTournament,
-);
-
+router.post("/startTournament", authenticateToken, tournamentController.startTournament);
+router.post("/setSeedBulk", authenticateToken, tournamentController.setSeedBulk);
 module.exports = router;

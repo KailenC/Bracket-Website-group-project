@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const SECRET = process.env.jwt_SECRET;
+const SECRET = process.env.JWT_SECRET;
 
 const generateToken = (user) => {
   if (!SECRET) {
