@@ -40,8 +40,8 @@ export default function UserProfile() {
 
   const initials = profile ? profile.username.slice(0, 2).toUpperCase() : "?";
   const total = brackets.length;
-  const completed = brackets.filter((b) => b.status === "Completed").length;
-  const active = brackets.filter((b) => b.status === "In Progress").length;
+  const completed = brackets.filter((b) => b.status === "complete").length;
+  const active = brackets.filter((b) => b.status === "in_progress").length;
 
   if (loading)
     return (
@@ -189,7 +189,7 @@ export default function UserProfile() {
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
               {brackets.map((b, i) => {
-                const isLive = b.status !== "completed";
+                const isLive = b.status !== "complete";
                 const isLast = i === brackets.length - 1;
 
                 return (
