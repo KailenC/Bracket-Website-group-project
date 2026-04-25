@@ -54,7 +54,7 @@ Navigate to the backend folder and create a new file called “.env”. Paste th
 ``DB_NAME = "usersdb"``  
 ``DB_PASSWORD = "FIXME: POSTGRESQL PASSWORD"``  
 ``DB_PORT = 5432``  
-``jwt_SECRET="FIXME: ENTER ANYTHING YOU WANT HERE"``  
+``JWT_SECRET="FIXME: ENTER ANYTHING YOU WANT HERE"``  
 
 Once this is set up, ensure you are in the backend and run the following command:  
 - ``npm install dotenv``
