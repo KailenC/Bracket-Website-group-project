@@ -151,7 +151,7 @@ function CreateModal({ onClose, onCreate }) {
         style={{
           background: "#fff",
           border: "1px solid #e5e7eb",
-          borderRadius: 14,
+          borderRadius: 10,
           padding: "24px",
           width: 360,
           display: "flex",
@@ -167,7 +167,7 @@ function CreateModal({ onClose, onCreate }) {
         </h2>
 
         {/* name */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
           <label style={S.label}>Bracket Name</label>
           <input
             style={S.input}
