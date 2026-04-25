@@ -62,16 +62,20 @@ const getSeededPlayers = async (tournament_id) => {
 };
 
 const createBracket = async (tournament_id) => {
-  //creates bracket in DB manually and upfront once all players are entered and seeded
   const players = await getSeededPlayers(tournament_id);
   const playerCount = players.length;
 
-  const bracketSize = Math.pow(2, Math.ceil(Math.log2(playerCount))); //I can explain this but its basically rounding up to always be <= 2^(number of rounds), think of how many starter slots are open
-  const totalRounds = Math.log2(bracketSize); //clean number of rounds
+  const bracketSize = Math.pow(2, Math.ceil(Math.log2(playerCount)));
+  const totalRounds = Math.log2(bracketSize);
 
-  //empty slots are null if not filled with players
-  const slots = [...players.map((p) => p.user_id)];
-  while (slots.length < bracketSize) slots.push(null);
+  // Build a bracketSize-length array where index = seed-1, null = bye
+  // This means byes are naturally at the END of the seed list
+  const slots = Array(bracketSize).fill(null);
+  for (let i = 0; i < players.length; i++) {
+    slots[i] = players[i].user_id; // seed 1 → index 0, seed 2 → index 1, etc.
+  }
+  // slots = [s1, s2, s3, s4, s5, s6, null, null]
+  // Mirroring now works: s1 vs slots[7]=null(bye), s2 vs slots[6]=null(bye), s3 vs s6, s4 vs s5 ✅
 
   const client = await pool.connect();
   try {
@@ -79,31 +83,31 @@ const createBracket = async (tournament_id) => {
 
     const round1Matches = [];
     for (let i = 0; i < bracketSize / 2; i++) {
-      const player1Id = slots[i]; // e.g. seed 1, 2, 3, 4
-      const player2Id = slots[bracketSize - 1 - i]; // e.g. seed 8, 7, 6, 5
+      const player1Id = slots[i];
+      const player2Id = slots[bracketSize - 1 - i];
       const matchNumber = i + 1;
+
+      // Determine status
+      let status;
+      if (!player1Id && !player2Id) {
+        status = "bye"; // both empty, skip entirely
+      } else if (!player2Id || !player1Id) {
+        status = "bye"; // one player gets a walkover
+      } else {
+        status = "pending";
+      }
 
       const result = await client.query(
         `INSERT INTO matches 
            (tournament_id, round, match_number, player1_id, player2_id, status)
          VALUES ($1, 1, $2, $3, $4, $5)
          RETURNING *`,
-        [
-          tournament_id,
-          matchNumber,
-          player1Id,
-          player2Id,
-          player1Id && player2Id
-            ? "pending" // normal match
-            : player1Id
-              ? "bye" // player1 gets a bye
-              : "bye", // empty slot
-        ],
+        [tournament_id, matchNumber, player1Id, player2Id, status],
       );
       round1Matches.push(result.rows[0]);
     }
 
-    // --- ROUND 2+: empty shells for every subsequent round ---
+    // Round 2+ shells (unchanged)
     for (let round = 2; round <= totalRounds; round++) {
       const matchesInRound = bracketSize / Math.pow(2, round);
       for (let matchNumber = 1; matchNumber <= matchesInRound; matchNumber++) {
@@ -116,10 +120,11 @@ const createBracket = async (tournament_id) => {
       }
     }
 
-    // Auto-advance any bye matches in round 1
+    // Auto-advance byes (unchanged)
     for (const match of round1Matches) {
       if (match.status === "bye") {
-        const winnerId = match.player1_id;
+        const winnerId = match.player1_id ?? match.player2_id;
+        if (!winnerId) continue; // both null, truly empty slot — skip
         await client.query(
           `UPDATE matches SET winner_id = $1, status = 'complete' WHERE id = $2`,
           [winnerId, match.id],
@@ -237,13 +242,15 @@ const getBracket = async (tournament_id) => {
     `SELECT 
        m.id, m.round, m.match_number, m.status,
        m.score1, m.score2,
-       m.player1_id, p1.username AS player1_username,
-       m.player2_id, p2.username AS player2_username,
+       m.player1_id, p1.username AS player1_username, tp1.seed AS player1_seed,
+       m.player2_id, p2.username AS player2_username, tp2.seed AS player2_seed,
        m.winner_id, w.username AS winner_username
      FROM matches m
      LEFT JOIN users p1 ON m.player1_id = p1.id
      LEFT JOIN users p2 ON m.player2_id = p2.id
      LEFT JOIN users w  ON m.winner_id  = w.id
+     LEFT JOIN tournament_players tp1 ON m.player1_id = tp1.user_id AND tp1.tournament_id = m.tournament_id
+     LEFT JOIN tournament_players tp2 ON m.player2_id = tp2.user_id AND tp2.tournament_id = m.tournament_id
      WHERE m.tournament_id = $1
      ORDER BY m.round ASC, m.match_number ASC`,
     [tournament_id],
