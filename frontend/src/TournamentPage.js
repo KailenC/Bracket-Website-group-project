@@ -12,52 +12,49 @@ export default function TournamentPage() {
   const [editedSeeds, setEditedSeeds] = useState({});
   const [seedsCollapsed, setSeedsCollapsed] = useState(false);
 
-useEffect(() => {
-  
-  const token = localStorage.getItem("token");
+  useEffect(() => {
+    const token = localStorage.getItem("token");
 
-  fetch(`http://localhost:8080/tournaments/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-    .then((r) => r.json())
-    .then(setTournament);
-
- fetch(`http://localhost:8080/tournaments/getBracket/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-    .then(async (r) => {
-      const data = await r.json();
-      if (!r.ok) return [];
-      return data;
+    fetch(`http://localhost:8080/tournaments/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
     })
-    .then((data) => setBracket(Array.isArray(data) ? data : []));
+      .then((r) => r.json())
+      .then(setTournament);
 
-  fetch(`http://localhost:8080/tournaments/${id}/players`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-  
- fetch(`http://localhost:8080/tournaments/${id}/players`, {
-  headers: { Authorization: `Bearer ${token}` },
-})
-  .then((r) => {
-    console.log("Players status:", r.status);  
-    if (!r.ok) return [];
-    return r.json();
-  })
-  .then((data) => {
-    console.log("Players data:", data); 
-    if (!Array.isArray(data)) return;
-    setPlayers(data);
-    const seedMap = {};
-    data.forEach((p) => {
-      seedMap[p.id] = p.seed ?? "";
+    fetch(`http://localhost:8080/tournaments/getBracket/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(async (r) => {
+        const data = await r.json();
+        if (!r.ok) return [];
+        return data;
+      })
+      .then((data) => setBracket(Array.isArray(data) ? data : []));
+
+    fetch(`http://localhost:8080/tournaments/${id}/players`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-    setEditedSeeds(seedMap);
-  })
-  .catch((err) => console.error("Players fetch failed:", err));
-}, [id]);
 
-
+    fetch(`http://localhost:8080/tournaments/${id}/players`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => {
+        console.log("Players status:", r.status);
+        if (!r.ok) return [];
+        return r.json();
+      })
+      .then((data) => {
+        console.log("Players data:", data);
+        if (!Array.isArray(data)) return;
+        setPlayers(data);
+        const seedMap = {};
+        data.forEach((p) => {
+          seedMap[p.id] = p.seed ?? "";
+        });
+        setEditedSeeds(seedMap);
+      })
+      .catch((err) => console.error("Players fetch failed:", err));
+  }, [id]);
 
   const fetchBracket = async () => {
     const token = localStorage.getItem("token");
@@ -76,24 +73,19 @@ useEffect(() => {
     setBracket(Array.isArray(data) ? data : []);
   };
 
-
-
   const startTournament = async () => {
     const token = localStorage.getItem("token");
-// eslint-disable-next-line
-    const fillRes = await fetch(
-      `http://localhost:8080/tournaments/fillSeeds`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          tournament_id: id,
-        }),
-      }
-    );
+    // eslint-disable-next-line
+    const fillRes = await fetch(`http://localhost:8080/tournaments/fillSeeds`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        tournament_id: id,
+      }),
+    });
 
     const res = await fetch(
       `http://localhost:8080/tournaments/startTournament`,
@@ -124,39 +116,37 @@ useEffect(() => {
     fetchBracket();
   };
 
-const handleSeedChange = (playerId, value) => {
-  setEditedSeeds((prev) => ({
-    ...prev,
-    [playerId]: value,
-  }));
-};
+  const handleSeedChange = (playerId, value) => {
+    setEditedSeeds((prev) => ({
+      ...prev,
+      [playerId]: value,
+    }));
+  };
 
-const submitSeeds = async () => {
-  const token = localStorage.getItem("token");
+  const submitSeeds = async () => {
+    const token = localStorage.getItem("token");
 
-  const seeds = players
-    .map((p) => {
-      const seedValue = Number(editedSeeds[p.id]);
+    const seeds = players
+      .map((p) => {
+        const seedValue = Number(editedSeeds[p.id]);
 
-      if (!seedValue || Number.isNaN(seedValue)) return null;
+        if (!seedValue || Number.isNaN(seedValue)) return null;
 
-      return {
-        player_id: p.id,
-        seed: seedValue,
-      };
-    })
-    .filter(Boolean);
+        return {
+          player_id: p.id,
+          seed: seedValue,
+        };
+      })
+      .filter(Boolean);
 
-  console.log("SENDING SEEDS:", seeds);
+    console.log("SENDING SEEDS:", seeds);
 
-  if (seeds.length === 0) {
-    alert("No valid seeds entered");
-    return;
-  }
+    if (seeds.length === 0) {
+      alert("No valid seeds entered");
+      return;
+    }
 
-  const res = await fetch(
-    `http://localhost:8080/tournaments/setSeedBulk`,
-    {
+    const res = await fetch(`http://localhost:8080/tournaments/setSeedBulk`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -166,21 +156,20 @@ const submitSeeds = async () => {
         tournament_id: id,
         seeds,
       }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.log(data);
+      alert(data.error || "Failed to set seeds");
+      return;
     }
-  );
 
-  const data = await res.json();
+    alert("Seeds updated!");
+  };
 
-  if (!res.ok) {
-    console.log(data);
-    alert(data.error || "Failed to set seeds");
-    return;
-  }
-
-  alert("Seeds updated!");
-};
-
-//asdasdasd
+  //asdasdasd
   const handleSubmitScores = async () => {
     const token = localStorage.getItem("token");
 
@@ -241,8 +230,7 @@ const submitSeeds = async () => {
       <div>
         <h1 style={{ marginLeft: 15, marginTop: 15 }}>{tournament.name}</h1>
       </div>
-      
- 
+
       {/* Bracket Logic */}
       <div
         style={{
@@ -266,7 +254,7 @@ const submitSeeds = async () => {
               }}
             >
               <h2 style={{ textAlign: "center" }}>Round {round}</h2>
- 
+
               {grouped[round].map((match) => (
                 <button
                   key={match.id}
@@ -289,7 +277,17 @@ const submitSeeds = async () => {
                   }}
                 >
                   <div>
-                    {match.player1_username ?? "TBD"} vs {match.player2_username ?? "TBD"}
+                    {match.player1_id !== null
+                      ? "(" + match.player1_id + ") "
+                      : ""}
+                    {match.player1_username ?? "TBD"} vs{" "}
+                    {match.player2_id !== null
+                      ? " (" + match.player2_id + ") "
+                      : ""}
+                    {match.player2_username ?? "TBD"}
+                  </div>
+                  <div>
+                    {match.score1} - {match.score2}
                   </div>
                   <div>{match.status}</div>
                 </button>
@@ -297,7 +295,7 @@ const submitSeeds = async () => {
             </div>
           ))}
       </div>
- 
+
       {/* Set Seeds */}
       {tournament?.status === "open" && (
         <div style={{ marginTop: 0, marginLeft: 15, display: "inline-block" }}>
@@ -310,17 +308,19 @@ const submitSeeds = async () => {
           >
             Set Seeds
           </button>
- 
+
           {!seedsCollapsed && (
             <div style={S.seedBox}>
-              <table style={{ borderCollapse: "collapse", width: "fit-content" }}>
+              <table
+                style={{ borderCollapse: "collapse", width: "fit-content" }}
+              >
                 <thead>
                   <tr>
                     <th style={tableStyles.th}>Player</th>
                     <th style={tableStyles.th}>Seed</th>
                   </tr>
                 </thead>
- 
+
                 <tbody>
                   {players.map((p) => (
                     <tr key={p.id}>
@@ -330,7 +330,9 @@ const submitSeeds = async () => {
                           type="number"
                           className="no-spinner"
                           value={editedSeeds[p.id] ?? ""}
-                          onChange={(e) => handleSeedChange(p.id, e.target.valueAsNumber)}
+                          onChange={(e) =>
+                            handleSeedChange(p.id, e.target.valueAsNumber)
+                          }
                           style={S.input}
                           min="1"
                         />
@@ -339,25 +341,28 @@ const submitSeeds = async () => {
                   ))}
                 </tbody>
               </table>
- 
-              <button style={{ ...S.primary, marginTop: 12 }} onClick={submitSeeds}>
+
+              <button
+                style={{ ...S.primary, marginTop: 12 }}
+                onClick={submitSeeds}
+              >
                 Save Seeds
               </button>
             </div>
           )}
         </div>
       )}
- 
+
       {/* Start tournament */}
       {tournament?.status === "open" && (
-        <div style={{ marginTop: 10, marginLeft: 15}}>
+        <div style={{ marginTop: 10, marginLeft: 15 }}>
           <button style={S.primary} onClick={startTournament}>
             Start Tournament
           </button>
         </div>
       )}
       {tournament?.status !== "open" && <p>Tournament Started</p>}
- 
+
       {/* Match score modal */}
       {selectedMatch && (
         <div
@@ -385,34 +390,42 @@ const submitSeeds = async () => {
             onClick={(e) => e.stopPropagation()}
           >
             <h2>Match</h2>
- 
+
             <p>
               {selectedMatch.player1_username ?? "TBD"} vs{" "}
               {selectedMatch.player2_username ?? "TBD"}
             </p>
- 
+
             <input
               display="flex"
               style={{ width: "100%", padding: "10px", borderRadius: 6 }}
               type="number"
-              placeholder="Player 1 Score"
+              placeholder={
+                selectedMatch.score1 === null
+                  ? "Player 1 Score"
+                  : selectedMatch.player1_username + ": " + selectedMatch.score1
+              }
               value={player1_score}
               onChange={(e) => setPlayer_1Score(e.target.value)}
               className="text-entry"
             />
- 
+
             <input
               display="flex"
               style={{ width: "100%", padding: "10px", borderRadius: 6 }}
               type="number"
-              placeholder="Player 2 Score"
+              placeholder={
+                selectedMatch.score2 === null
+                  ? "Player 2 Score"
+                  : selectedMatch.player2_username + ": " + selectedMatch.score2
+              }
               value={player2_score}
               onChange={(e) => setPlayer_2Score(e.target.value)}
               className="text-entry"
             />
- 
+
             <p>{selectedMatch.status}</p>
- 
+
             <button onClick={() => setSelectedMatch(null)}>Close</button>
             <button
               onClick={() => handleSubmitScores()}
@@ -430,7 +443,7 @@ const submitSeeds = async () => {
     </div>
   );
 }
- 
+
 const tableStyles = {
   th: {
     textAlign: "left",
@@ -444,7 +457,7 @@ const tableStyles = {
     whiteSpace: "wrap",
   },
 };
- 
+
 const S = {
   primary: {
     background: "#4a429f",
@@ -478,7 +491,6 @@ const S = {
     display: "inline-block",
   },
 
-
   input: {
     background: "#fff",
     border: "1px solid #d1d5db",
@@ -491,4 +503,3 @@ const S = {
     fontFamily: "'Poppins', sans-serif",
   },
 };
- 
