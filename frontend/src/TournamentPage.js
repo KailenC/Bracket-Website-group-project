@@ -237,8 +237,11 @@ const submitSeeds = async () => {
           -moz-appearance: textfield;
         }
       `}</style>
- 
-      <h1>{tournament.name}</h1>
+
+      <div>
+        <h1 style={{ marginLeft: 15, marginTop: 15 }}>{tournament.name}</h1>
+      </div>
+      
  
       {/* Bracket Logic */}
       <div

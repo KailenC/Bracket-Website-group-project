@@ -56,7 +56,7 @@ function BracketCard({ bracket, onOpen }) {
     text: "#374151",
     border: "#e5e7eb",
   };
-  const isLive = bracket.status !== "completed";
+  const isLive = bracket.status !== "complete";
 
   return (
     <div
@@ -235,35 +235,27 @@ export default function Dashboard() {
       navigate("/login");
       return;
     }
-
-    // Try to read username out of the token
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      setUsername(payload.username || payload.sub || "Champ");
-    } catch {}
-
-    // Fetch brackets from backend
+  const fetchBrackets = () => {   // <-- defined here, inside useEffect
+    console.log("fetching brackets...", new Date().toLocaleTimeString());
     fetch("http://localhost:8080/tournaments/my", {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((r) => {
-        if (!r.ok) throw new Error();
-        return r.json();
-      })
-      .then((data) =>
-        setBrackets(
-          data.map((t) => ({
-            id: t.id,
-            name: t.name,
-            sport: t.type,
-            teams: t.max_players,
-            status: t.status,
-            progress: 0,
-          })),
-        ),
-      )
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+      .then(data => setBrackets(data.map(t => ({
+        id: t.id,
+        name: t.name,
+        sport: t.type,
+        teams: t.max_players,
+        status: t.status,
+        progress: 0,
+      }))))
       .finally(() => setLoading(false));
-  }, [navigate]);
+  };
+
+  fetchBrackets();                           // runs immediately on mount/refresh
+  const interval = setInterval(fetchBrackets, 30000);
+  return () => clearInterval(interval);
+}, [navigate]);
 
   const handleCreate = async (name, sport, players) => {
     const token = localStorage.getItem("token");
@@ -312,8 +304,8 @@ export default function Dashboard() {
     setShowModal(false);
   };
 
-  const active = brackets.filter((b) => b.status === "active").length;
-  const completed = brackets.filter((b) => b.status === "completed").length;
+const active = brackets.filter((b) => b.status !== "complete").length;
+const completed = brackets.filter((b) => b.status === "complete").length;
 
   return (
     <div
