@@ -29,14 +29,11 @@ function Main() {
         <div className="tournament-header">
           <h2>Join a Tournament!!</h2>
           <h3>Browse Existing Tournaments</h3>
+          <div className="tournament-grid">
+            <Link to="/tournaments" className="btn">
+              Browse Tournaments
+            </Link>
         </div>
-
-        <div className="tournament-grid">
-          <div className="tournament-box">
-            <h4>Example Tournament 1</h4>
-            <p>UNO</p>
-            <button className="btn"> Join! Placeholder Route</button>
-          </div>
         </div>
       </div>
       <br></br>

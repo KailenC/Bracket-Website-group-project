@@ -165,8 +165,6 @@ export default function TournamentPage() {
       alert(data.error || "Failed to set seeds");
       return;
     }
-
-    alert("Seeds updated!");
   };
 
   //asdasdasd
