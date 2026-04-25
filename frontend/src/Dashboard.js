@@ -18,7 +18,7 @@ function StatCard({ label, value, accent }) {
       style={{
         background: "#f9fafb",
         border: "1px solid #e5e7eb",
-        borderRadius: 10,
+        borderRadius: 5,
         padding: "12px 14px",
         borderTop: `3px solid ${accent}`,
       }}
@@ -64,7 +64,7 @@ function BracketCard({ bracket, onOpen }) {
       style={{
         background: "#fff",
         border: "1px solid #e5e7eb",
-        borderRadius: 10,
+        borderRadius: 5,
         padding: "14px",
         cursor: "pointer",
         transition: "border-color 0.15s",
@@ -89,7 +89,7 @@ function BracketCard({ bracket, onOpen }) {
             color: c.text,
             border: `1px solid ${c.border}`,
             padding: "2px 9px",
-            borderRadius: 20,
+            borderRadius: 10,
             fontSize: 10,
             fontWeight: 700,
           }}
@@ -102,7 +102,7 @@ function BracketCard({ bracket, onOpen }) {
             color: isLive ? "#c2410c" : "#15803d",
             border: `1px solid ${isLive ? "#fed7aa" : "#bbf7d0"}`,
             padding: "2px 8px",
-            borderRadius: 20,
+            borderRadius: 10,
             fontSize: 10,
           }}
         >
@@ -235,6 +235,10 @@ export default function Dashboard() {
       navigate("/login");
       return;
     }
+
+const payload = JSON.parse(atob(token.split(".")[1]));
+setUsername(payload.username || payload.name || payload.sub || "Champ");
+
   const fetchBrackets = () => {   // <-- defined here, inside useEffect
     console.log("fetching brackets...", new Date().toLocaleTimeString());
     fetch("http://localhost:8080/tournaments/my", {
@@ -453,27 +457,6 @@ const S = {
     cursor: "pointer",
     fontWeight: 700,
     fontSize: 13,
-    fontFamily: "'Poppins', sans-serif",
-  },
-  ghost: {
-    background: "none",
-    border: "1px solid #d1d5db",
-    color: "#6b7280",
-    padding: "8px 14px",
-    borderRadius: 7,
-    cursor: "pointer",
-    fontSize: 13,
-    fontFamily: "'Poppins', sans-serif",
-  },
-  input: {
-    background: "#fff",
-    border: "1px solid #d1d5db",
-    color: "#1f2937",
-    padding: "10px 12px",
-    borderRadius: 7,
-    fontSize: 13,
-    outline: "none",
-    width: "100%",
     fontFamily: "'Poppins', sans-serif",
   },
   label: {
