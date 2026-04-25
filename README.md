@@ -73,3 +73,7 @@ Next, navigate to the backend and run ./reset-db on either Windows or Mac. This 
 Create two new terminal instances and have one cd into the frontend and the other cd into the backend.
 
 Run ``npm start`` on both terminal instances. Now, the backend server should be running and the frontend should be accessible from http://localhost:3000/
+
+## Demo
+
+This is a link to the Demo video we recorded for this project: https://www.youtube.com/watch?v=46Z-msM1Eds
