@@ -170,6 +170,13 @@ export default function TournamentPage() {
   //asdasdasd
   const handleSubmitScores = async () => {
     const token = localStorage.getItem("token");
+  const score1 = Number(player1_score);
+  const score2 = Number(player2_score);
+
+  if (score1 < 0 || score2 < 0) {
+    alert("Scores cannot be negative.");
+    return;
+  }
 
     const res = await fetch(
       `http://localhost:8080/brackets/enterResultsSeries`,
