@@ -28,7 +28,7 @@ CREATE TABLE tournament_players (
   id SERIAL PRIMARY KEY, 
   tournament_id INT REFERENCES tournaments(id) ON DELETE CASCADE, 
   user_id INT REFERENCES users(id) ON DELETE CASCADE,
-  seed INT, --cascade somehow? ts up to u kailen
+  seed INT,
   UNIQUE (tournament_id, user_id)
 );
 
